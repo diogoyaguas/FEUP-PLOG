@@ -13,4 +13,10 @@ getLine(N, [ _ | Remainder], Line) :-
     Previous is N - 1,
     getLine(Previous, Remainder, Line).
 
+getColumn(1, [Piece | _ ], Piece).
+getColumn(N, [ _ | Remainder], Piece) :-
+    N > 1,
+    Previous is N - 1,
+    getColumn(Previous, Remainder, Piece).
+
 
