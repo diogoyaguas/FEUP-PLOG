@@ -1,6 +1,6 @@
 table([
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
-[.,b,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
+[.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
@@ -80,4 +80,4 @@ replaceLine(1, [_ | Remainder], NewList, [NewList | Remainder]).
 replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
     Line > 1,
     Previous is Line - 1,
-    replacePieceInLine(Previous, Remainder, NewList, NewLine).
+    replaceLine(Previous, Remainder, NewList, NewLine).
