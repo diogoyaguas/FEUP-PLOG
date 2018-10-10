@@ -38,7 +38,11 @@ printList([H|T]) :-
     write('|'),
     printList(T).
 
-display_game(Board) :- table(Board), viewTab(Board).
+display_game(Board, Player) :- 
+    table(Board), 
+    viewTab(Board),
+    write(Player),
+    write(' Turn').
 
 getPiece(Line, Column , Table, Piece) :-
     table(Table),
@@ -57,19 +61,23 @@ getColumn(N, [ _ | Remainder], Piece) :-
     Previous is N - 1,
     getColumn(Previous, Remainder, Piece).
 
-replacePiece(Column, List, NewElement, NewLine) :-
-    replacePieceInColumn(Column, List, NewElement, NewLine).
+replacePiece(Column, Line, NewElement, Board, NewBoard) :-
+    table(Board),
+    getLine(Line, Board, List),
+    replaceElement(Column, List, NewElement, NewLine),
+    replaceLine(Line, Board, NewLine, NewBoard),
+    viewTab(NewBoard).
 
-replacePieceInColumn(1, [ _ | Remainder ], NewElement, NewLine) :-
-    append(NewLine, [NewElement], NewNewLine),
-    append(NewNewLine, Remainder, NewLine3),
-    printList(NewLine3).
+replaceElement(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
 
-replacePieceInColumn(Column, [ Head | Remainder], NewElement, NewLine) :-
+replaceElement(Column, [ Head | Remainder], NewElement, [Head | NewLine]) :-
     Column > 1,
     Previous is Column - 1,
-    append(NewLine, [Head], NewNewLine),
-    replacePieceInColumn(Previous, Remainder, NewElement, NewNewLine).
+    replacePieceInColumn(Previous, Remainder, NewElement, NewLine).
+
+replaceLine(1, [_ | Remainder], NewList, [NewList | Remainder]).
     
-
-
+replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
+    Line > 1,
+    Previous is Line - 1,
+    replacePieceInLine(Previous, Remainder, NewList, NewLine).
