@@ -1,3 +1,6 @@
+:- include('Tools.pl').
+:- include('Game.pl').
+
 table([
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
@@ -19,12 +22,10 @@ table([
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.]]).  
 
-line([.,.,b]).
+start :-
+    displayMenu.
 
-black('Player 1').
-black('B').
-white('Player 2').
-white('W').
+line([.,.,b]).
 
 viewTab([]).
 viewTab([H|T]) :-
@@ -35,49 +36,40 @@ printList([]) :-
     nl.
 printList([H|T]) :-
     write(H),
-    write('|'),
     printList(T).
 
 display_game(Board, Player) :- 
     table(Board), 
-    viewTab(Board),
     write(Player),
+    nl,
+    viewTab(Board),
     write(' Turn').
 
-getPiece(Line, Column , Table, Piece) :-
-    table(Table),
-    getLine(Line, Table, ActualLine),
-    getColumn(Column, ActualLine, Piece).
+displayMenu :-
+    write('Zurero'),
+    nl,
+    write('------'),
+    nl,
+    write('1 - Human vs Human'),
+    nl,
+    nl,
+    processMenuInput.
 
-getLine(1, [Line | _ ], Line).
-getLine(N, [ _ | Remainder], Line) :-
-    N > 1,
-    Previous is N - 1,
-    getLine(Previous, Remainder, Line).
+processMenuInput :-
+    displayMenu,
+    get_char(Option),
+    (
+        Option = '1' -> write('Started Human vs Human');
+        Option = '2'
+    ).
 
-getColumn(1, [Piece | _ ], Piece).
-getColumn(N, [ _ | Remainder], Piece) :-
-    N > 1,
-    Previous is N - 1,
-    getColumn(Previous, Remainder, Piece).
+getPlayerInput(Game, PlayedGame) :-
+    write('Column: '),
+    get_char(Column),
+    nl,
+    write('Line: '),
+    get_char(Line),
+    nl,
+    nth0(1, Game, NewCharacter),
+    replacePiece(Column, Line, NewCharacter, Game, PlayedGame).
 
-replacePiece(Column, Line, NewElement, Board, NewBoard) :-
-    table(Board),
-    getLine(Line, Board, List),
-    replaceElement(Column, List, NewElement, NewLine),
-    replaceLine(Line, Board, NewLine, NewBoard),
-    viewTab(NewBoard).
-
-replaceElement(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
-
-replaceElement(Column, [ Head | Remainder], NewElement, [Head | NewLine]) :-
-    Column > 1,
-    Previous is Column - 1,
-    replacePieceInColumn(Previous, Remainder, NewElement, NewLine).
-
-replaceLine(1, [_ | Remainder], NewList, [NewList | Remainder]).
-    
-replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
-    Line > 1,
-    Previous is Line - 1,
-    replaceLine(Previous, Remainder, NewList, NewLine).
