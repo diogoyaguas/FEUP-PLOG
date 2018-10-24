@@ -35,3 +35,21 @@ replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
     Line > 1,
     Previous is Line - 1,
     replaceLine(Previous, Remainder, NewList, NewLine).
+
+getCleanChar(X) :-
+    get_char(X),
+    get_char(_).
+
+getCleanInt(I) :-
+    read(I),
+    (
+        integer(I);
+        write('Invalid Input'), nl, getCleanInt(I)
+    ).
+    
+newLine(1) :-
+    nl.
+newLine(N) :-
+    NewN is N - 1,
+    nl,
+    newLine(NewN).
