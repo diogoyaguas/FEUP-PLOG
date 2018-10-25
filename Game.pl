@@ -35,7 +35,7 @@ getPlayInput(Play) :-
     getCleanChar(Option),
     (
         Option = '1' -> getPlayColumn(Column, Direction), Play = ['C', Column, Direction];
-        Option = '2' -> getPlayLine(Line, Direction), Play = ['L', Line, Direction];
+        Option = '2' -> getPlayLine(Line, Direction), Play = ['L', Line, Direction]
     ).
 
 getPlayLine(Line, Direction) :-
