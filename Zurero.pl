@@ -86,3 +86,13 @@ zurero :-
         newLine(30),
         zurero
     ).
+
+getPlayerInput(Game, PlayedGame) :-
+    write('Column: '),
+    get_char(Column),
+    nl,
+    write('Line: '),
+    get_char(Line),
+    nl,
+    nth0(1, Game, NewCharacter),
+    replacePiece(Column, Line, NewCharacter, Game, PlayedGame).
