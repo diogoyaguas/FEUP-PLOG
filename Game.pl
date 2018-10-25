@@ -11,6 +11,7 @@ startGame(Game) :-
 
 updateGame(Game) :-
     playTurn(Game, PlayedGame).
+    % Check for winning condition
 
 updateGameTable(Game, NewTable, StartedGame) :-
     replaceElement(1, Game, NewTable, StartedGame).
@@ -23,11 +24,8 @@ playTurn(Game, PlayedGame) :-
 
 playTurnPvP(Game, PlayedGame) :-
     nth0(1, Game, Player),
-    getPlayInput(Game, PlayedGame),
-    (
-        Player = 'w' -> (display_game(PlayedGame, 'Player 2 Turn'), replaceElement(2, Game, b, PlayedGame)); 
-        Player = 'b' -> (dispplay_game(PlayedGame, 'Player 1 Turn'), replaceElement(2, Game, w, PlayedGame))
-    ).
+    getPlayInput(Play),
+    printList(Play).
 
 getPlayInput(Play) :-
     write('1 - Choose Column'), nl,

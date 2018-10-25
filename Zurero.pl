@@ -1,5 +1,6 @@
 :- include('Tools.pl').
 :- include('Game.pl').
+:- use_module(library(lists)).
 
 table([
 [.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.],
@@ -80,7 +81,7 @@ zurero :-
     displayMenu,
     getCleanChar(Option),
     (
-        Option = '1' -> write('Started Human vs Human'), createGame('pvp');
+        Option = '1' -> write('Started Human vs Human'), nl, createGame('pvp');
         Option = '2';
         write('Invalid Input'),
         newLine(30),

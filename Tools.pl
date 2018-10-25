@@ -20,7 +20,7 @@ replacePiece(Column, Line, NewElement, Board, NewBoard) :-
     getLine(Line, Board, List),
     replaceElement(Column, List, NewElement, NewLine),
     replaceLine(Line, Board, NewLine, NewBoard),
-    viewTab(NewBoard).
+    viewTab(NewBoard, 1).
 
 replaceElement(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
 
