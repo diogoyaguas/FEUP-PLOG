@@ -7,25 +7,25 @@ startGame(Game) :-
     nth0(0, Game, Table),
     replacePiece(10, 10, 'b', Table, NewTable),
     updateGameTable(Game, NewTable, StartedGame),
-    updateGame(StartedGame).
+    nth0(2, StartedGame, Mode),
+    (
+        Mode = 'pvp' -> updateGamePvP(Game)
+    ).
 
-updateGame(Game) :-
-    playTurn(Game, PlayedGame).
+updateGamePvP(Game) :-
+    playTurnPvP(Game,PlayedGame),
     % Check for winning condition
+    playTurnPvP(PlayedGame, EndTurnGame),
+    % Check for winning condition
+    updateGamePvP(EndTurnGame).
 
 updateGameTable(Game, NewTable, StartedGame) :-
     replaceElement(1, Game, NewTable, StartedGame).
 
-playTurn(Game, PlayedGame) :-
-    nth0(2, Game, Mode),
-    (
-        Mode = 'pvp' -> playTurnPvP(Game, PlayedGame)
-    ).
-
 playTurnPvP(Game, PlayedGame) :-
     nth0(1, Game, Player),
     getPlayInput(Play),
-    printList(Play).
+    printList(Play), nl.
 
 getPlayInput(Play) :-
     write('1 - Choose Column'), nl,
