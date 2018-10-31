@@ -42,6 +42,11 @@ printFormatNumber(N) :-
     N < 10 -> write('0'), write(N);
     write(N).
 
+printBoard(Board) :-
+    printTableHeader,
+    viewTab(Board, 1),
+    printTableHeader.
+
 
 viewTab([], 20).
 viewTab([H|T], N) :-
@@ -61,9 +66,7 @@ printList([H|T]) :-
 
 display_game(Board, Player) :- 
     table(Board),
-    printTableHeader,
-    viewTab(Board, 1),
-    printTableHeader.
+    printBoard(Board).
 
 displayMenu :-
     write('Zurero'),
@@ -84,7 +87,7 @@ zurero :-
         Option = '1' -> write('Started Human vs Human'), nl, createGame('pvp');
         Option = '2';
         write('Invalid Input'),
-        newLine(30),
+        newLine(10),
         zurero
     ).
 

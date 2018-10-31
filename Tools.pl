@@ -20,7 +20,7 @@ replacePiece(Column, Line, NewElement, Board, NewBoard) :-
     getLine(Line, Board, List),
     replaceElement(Column, List, NewElement, NewLine),
     replaceLine(Line, Board, NewLine, NewBoard),
-    viewTab(NewBoard, 1).
+    printBoard(NewBoard).
 
 replaceElement(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
 
@@ -42,10 +42,11 @@ getCleanChar(X) :-
 
 getCleanInt(I) :-
     read(I),
-    (
-        integer(I);
-        write('Invalid Input'), nl, getCleanInt(I)
-    ).
+    get_char(_),
+    integer(I).
+        
+getCleanInt(I) :-
+    write('Invalid Input'), nl, getCleanInt(I).
     
 newLine(1) :-
     nl.

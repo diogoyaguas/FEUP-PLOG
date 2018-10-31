@@ -36,13 +36,28 @@ getPlayInput(Play) :-
         Option = '2' -> getPlayLine(Line, Direction), Play = ['L', Line, Direction]
     ).
 
+getPlayInput(Play) :-
+    write('Invalid Input'), nl, getPlayInput(Play).
+
 getPlayLine(Line, Direction) :-
     write('Line (1 to 19): '),
     getCleanInt(Line),
+    Line > 1, Line < 20,
+    getPlayLineDirection(Direction).
+
+getPlayLineDirection(Direction) :-
+    write('L (Left) or R (right): '),
+    getCleanChar(Direction),
     (
-        Line > 1, Line < 19;
-        write('Invalid Input'), nl, getPlayLine(Line, Direction)
-    ).
+        Direction = 'L'; Direction = 'l';
+        Direction = 'R'; Direction = 'r'
+    ), nl.
+
+getPlayLineDirection(Direction) :-
+    write('Invalid Input'), nl, getPlayLineDirection(Direction).
+    
+getPlayLine(Line, Direction) :-
+    write('Invalid Input'), nl, getPlayLine(Line, Direction).
     
 getPlayColumn(Column, Direction):-
     write('Column (A to S): '),
@@ -66,17 +81,22 @@ getPlayColumn(Column, Direction):-
         Column = 'P'; Column = 'p';
         Column = 'Q'; Column = 'q';
         Column = 'R'; Column = 'r';
-        Column = 'S'; Column = 's';
-        write('Invalid Option'), nl, getColumnPlay(Column, Direction) % Might not work
+        Column = 'S'; Column = 's'
     ), nl,
     getPlayColumnDirection(Direction).
 
+getPlayColumn(Column, Direction) :-
+    write('Invalid Option'), nl, getPlayColumn(Column, Direction).
+
+
 getPlayColumnDirection(Direction) :-
-    write('Direction (Up or Down): '),
-    read(Direction),
+    write('Direction (U (Up) or D (Down)): '),
+    getCleanChar(Direction),
     (
-        Direction = 'Up'; Direction = 'up';
-        Direction = 'Down'; Direction = 'down';
-        write('Invalid Option'), nl, getPlayColumnDirection(Direction) % Might not work
+        Direction = 'U'; Direction = 'u';
+        Direction = 'D'; Direction = 'd'
     ), nl.
+
+getPlayColumnDirection(Direction) :-
+    write('Invalid Option'), nl, getPlayColumnDirection(Direction).
 
