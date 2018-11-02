@@ -1,7 +1,29 @@
+columnDictionary(Column, Number) :-
+    Column = 'A' -> Number = 1;
+    Column = 'B' -> Number = 2;
+    Column = 'C' -> Number = 3;
+    Column = 'D' -> Number = 4;
+    Column = 'E' -> Number = 5;
+    Column = 'F' -> Number = 6;
+    Column = 'G' -> Number = 7;
+    Column = 'H' -> Number = 8;
+    Column = 'I' -> Number = 9;
+    Column = 'J' -> Number = 10;
+    Column = 'K' -> Number = 11;
+    Column = 'L' -> Number = 12;
+    Column = 'M' -> Number = 13;
+    Column = 'N' -> Number = 14;
+    Column = 'O' -> Number = 15;
+    Column = 'P' -> Number = 16;
+    Column = 'Q' -> Number = 17;
+    Column = 'R' -> Number = 18;
+    Column = 'S' -> Number = 19;
+    write('Invalid Column').
+
 getPiece(Line, Column , Table, Piece) :-
     table(Table),
     getLine(Line, Table, ActualLine),
-    getColumn(Column, ActualLine, Piece).
+    getPieceInColumn(Column, ActualLine, Piece).
 
 getLine(1, [Line | _ ], Line).
 getLine(N, [ _ | Remainder], Line) :-
@@ -9,18 +31,17 @@ getLine(N, [ _ | Remainder], Line) :-
     Previous is N - 1,
     getLine(Previous, Remainder, Line).
 
-getColumn(1, [Piece | _ ], Piece).
-getColumn(N, [ _ | Remainder], Piece) :-
+getPieceInColumn(1, [Piece | _ ], Piece).
+getPieceInColumn(N, [ _ | Remainder], Piece) :-
     N > 1,
     Previous is N - 1,
-    getColumn(Previous, Remainder, Piece).
+    getPieceInColumn(Previous, Remainder, Piece).
 
 replacePiece(Column, Line, NewElement, Board, NewBoard) :-
     table(Board),
     getLine(Line, Board, List),
     replaceElement(Column, List, NewElement, NewLine),
-    replaceLine(Line, Board, NewLine, NewBoard),
-    printBoard(NewBoard).
+    replaceLine(Line, Board, NewLine, NewBoard).
 
 replaceElement(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
 
