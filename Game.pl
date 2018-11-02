@@ -9,22 +9,22 @@ startGame(Game) :-
     updateGameTable(Game, NewTable, StartedGame),
     nth0(1, StartedGame, Mode),
     (
-        Mode = 'pvp' -> updateGamePvP(StartedGame, 'w')
+        Mode = 'pvp' -> printBoard(NewTable), updateGamePvP(StartedGame, 'w')
     ).
 
 updateGamePvP(Game, Player) :-
-    nth0(0, Game, Table),
-    printBoard(Table),
     playTurnPvP(Game, Player, PlayedGame),
     % Check for winning condition
-    playTurnPvP(PlayedGame, Player, EndTurnGame),
+    switchPlayers(Player, NextPlayer),
+    playTurnPvP(PlayedGame, NextPlayer, EndTurnGame),
     % Check for winning condition
-    (
-        Player = 'w' -> NextPlayer = 'b';
-        NextPlayer = 'w'
-    ),
-    updateGamePvP(EndTurnGame, NextPlayer).
+    switchPlayers(NextPlayer, OriginalPlayer),
+    updateGamePvP(EndTurnGame, OriginalPlayer).
 
+switchPlayers(CurrentPlayer, NextPlayer) :-
+    CurrentPlayer = 'w' -> NextPlayer = 'b';
+    NextPlayer = 'w'.
+   
 updateGameTable(Game, NewTable, StartedGame) :-
     replaceElement(1, Game, NewTable, StartedGame).
 
@@ -49,10 +49,12 @@ checkPlay(Board, Play, NewBoard) :-
 checkColumnPlay(Board, Play, NewBoard) :-
     nth0(2, Play, Direction),
     (
-        Direction = 'U' -> checkColumnPlayUp(Board, Play, NewBoard)
+        Direction = 'U' -> reverse(Board, ReversedBoard),
+        checkColumnPlayDirection(ReversedBoard, Play, NewReversedBoard), reverse(NewReversedBoard, NewBoard);
+        Direction = 'D' -> checkColumnPlayDirection(Board, Play, NewBoard)
     ).
 
-checkColumnPlayUp([Line | RestOfBoard], Play, [Line | Remainder]) :-
+checkColumnPlayDirection([Line | RestOfBoard], Play, [Head | Remainder]) :-
     nth0(1, Play, Column),
     nth1(1, RestOfBoard, NextLine),
     getPieceInColumn(Column, NextLine, Piece),
@@ -63,18 +65,19 @@ checkColumnPlayUp([Line | RestOfBoard], Play, [Line | Remainder]) :-
             RestOfBoard \= [] -> nth1(2, RestOfBoard, SecondLine), 
                 getPieceInColumn(Column, SecondLine, NextPiece),
                 (
-                    NextPiece \= '.' -> replaceElement(Column, NextLine, Player, NewLine),
-                    replaceElement(1, RestOfBoard, NewLine, Remainder);
+                    NextPiece \= '.' -> replaceElement(Column, Line, Player, Head),
+                    Remainder = RestOfBoard;
 
                     replaceElement(Column, SecondLine, Piece, NewBottomLine),
                     replaceElement(2, RestOfBoard, NewBottomLine, NewRestOfBoard),
                     replaceElement(Column, NextLine, Player, NewLine),
-                    replaceElement(1, NewRestOfBoard, NewLine, Remainder)
+                    replaceElement(1, NewRestOfBoard, NewLine, Remainder),
+                    Head = Line
                 )
         ) 
     );
-    checkColumnPlayUp(RestOfBoard, Play, Remainder).
-       
+    Head = Line, checkColumnPlayDirection(RestOfBoard, Play, Remainder).
+
 getPlayInput(Player, Play) :-
     write('1 - Choose Column'), nl,
     write('2 - Choose Line'), nl,
