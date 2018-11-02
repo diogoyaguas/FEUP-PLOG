@@ -64,7 +64,7 @@ printList([H|T]) :-
     write('|'),
     printList(T).
 
-display_game(Board, Player) :- 
+display_game(Board) :- 
     table(Board),
     printBoard(Board).
 
