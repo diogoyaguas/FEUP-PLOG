@@ -14,13 +14,9 @@ startGame(Game) :-
 
 updateGamePvP(Game, Player) :-
     playTurnPvP(Game, Player, PlayedGame),
-    % Check for winning condition
-    switchPlayers(Player, NextPlayer),
-    playTurnPvP(PlayedGame, NextPlayer, EndTurnGame),
-    % Check for winning condition
-    switchPlayers(NextPlayer, OriginalPlayer),
-    updateGamePvP(EndTurnGame, OriginalPlayer).
-
+    nth0(0, PlayedGame, Board),
+    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvP(PlayedGame, NextPlayer)).
+    
 switchPlayers(CurrentPlayer, NextPlayer) :-
     CurrentPlayer = 'w' -> NextPlayer = 'b';
     NextPlayer = 'w'.
@@ -189,6 +185,54 @@ getPlayColumnDirection(Direction) :-
 getPlayColumnDirection(Direction) :-
     write('Invalid Option'), nl, getPlayColumnDirection(Direction).
 
-checkForPieceBelow(Column, [Line | _], Piece) :-
-    getPieceInColumn(Column, Line, Piece).
+fiveInARow([[] | []], _) :-
+    write('End Of Board'), nl,
+    false.
+
+fiveInARow([[Piece | RestOfLine] | RestOfBoard], PieceIndex) :-
+    RestOfLine = [] -> fiveInARow(RestOfBoard, 0);
+    Piece \= '.' ->
+    (
+        %write(Piece), nl,
+        checkFiveInARowRight(RestOfLine, Piece, 1);
+        %write('Before down'), nl,
+        checkFiveInARowDown(RestOfBoard, PieceIndex, Piece, 1);
+        %write('Before Diagonal Left'), nl,
+        checkFiveInARowDiagonalLeft(RestOfBoard, PieceIndex, Piece, 1);
+        %write('Before Right'), nl,
+        checkFiveInARowDiagonalRight(RestOfBoard, PieceIndex, Piece, 1);
+
+        NexIndex = PieceIndex + 1,
+        append([RestOfLine], RestOfBoard, CutBoard),
+        fiveInARow(CutBoard, NextIndex)
+    );
+    NexIndex = PieceIndex + 1,
+    append([RestOfLine], RestOfBoard, CutBoard),
+    fiveInARow(CutBoard, NextIndex).
+
+checkFiveInARowDiagonalLeft(_, _, _, 5).
+
+checkFiveInARowDiagonalLeft([Line | RestOfBoard], Column, PlayerPiece, NumberOfMatches) :-
+    nth0(Column, Line, Piece),
+    Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, PreviousColumn is Column - 1, 
+    checkFiveInARowDiagonalLeft(RestOfBoard, PreviousColumn, PlayerPiece, NextMatch).
+
+checkFiveInARowDiagonalRight(_, _, _, 5).
+
+checkFiveInARowDiagonalRight([Line | RestOfBoard], Column, PlayerPiece, NumberOfMatches) :-
+    nth0(Column, Line, Piece),
+    Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, PreviousColumn is Column + 1, 
+    checkFiveInARowDiagonalRight(RestOfBoard, PreviousColumn, PlayerPiece, NextMatch).
+
+checkFiveInARowDown(_, _, _, 5).
+
+checkFiveInARowDown([Line | RestOfBoard], Column, PlayerPiece, NumberOfMatches) :-
+    nth0(Column, Line, Piece),
+    Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, 
+    checkFiveInARowDown(RestOfBoard, Column, PlayerPiece, NextMatch).
+
+checkFiveInARowRight(_, _, 5).
+
+checkFiveInARowRight([Piece | RestOfLine], PlayerPiece, NumberOfMatches) :-
+    Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, checkFiveInARowRight(RestOfLine, PlayerPiece, NextMatch).
 
