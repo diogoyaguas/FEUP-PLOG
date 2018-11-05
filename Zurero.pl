@@ -80,15 +80,15 @@ displayMenu :-
     write('3 - CPU vs CPU'),
     nl.
 
-zurero :-
+play :-
     displayMenu,
     getCleanChar(Option),
     (
         Option = '1' -> write('Started Human vs Human'), nl, createGame('pvp');
         Option = '2';
         write('Invalid Input'),
-        newLine(10),
-        zurero
+        nl,
+        play
     ).
 
 getPlayerInput(Game, PlayedGame) :-
@@ -100,3 +100,7 @@ getPlayerInput(Game, PlayedGame) :-
     nl,
     nth0(1, Game, NewCharacter),
     replacePiece(Column, Line, NewCharacter, Game, PlayedGame).
+
+showPlayer(Player) :-
+    Player = 'b' -> nl, write('Black Turn'), newLine(2);
+    Player = 'w' -> nl, write('White Turn'), newLine(2).

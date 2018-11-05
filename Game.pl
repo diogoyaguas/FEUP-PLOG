@@ -25,6 +25,7 @@ updateGameTable(Game, NewTable, StartedGame) :-
     replaceElement(1, Game, NewTable, StartedGame).
 
 playTurnPvP(Game, Player, PlayedGame) :-
+    showPlayer(Player),
     getPlayInput(Player, Play),
     nth0(0, Game, Board),
     (
@@ -121,7 +122,7 @@ getPlayInput(Player, Play) :-
     (
         Option = '1' -> getPlayColumn(Column, Direction), Play = ['C', Column, Direction, Player];
         Option = '2' -> getPlayLine(Line, Direction), Play = ['L', Line, Direction, Player];
-        write('Invalid Input'), nl, getPlayInput(Play)
+        write('Invalid Input'), nl, getPlayInput(Play, Player)
     ).
 
 getPlayLine(Line, Direction) :-
@@ -194,13 +195,13 @@ fiveInARow([[Piece | RestOfLine] | RestOfBoard], PieceIndex) :-
     Piece \= '.' ->
     (
         %write(Piece), nl,
-        checkFiveInARowRight(RestOfLine, Piece, 1);
+        checkFiveInARowRight(RestOfLine, Piece, 1), write('Horizontal ');
         %write('Before down'), nl,
-        checkFiveInARowDown(RestOfBoard, PieceIndex, Piece, 1);
+        checkFiveInARowDown(RestOfBoard, PieceIndex, Piece, 1), write('Vertical ');
         %write('Before Diagonal Left'), nl,
-        checkFiveInARowDiagonalLeft(RestOfBoard, PieceIndex, Piece, 1);
+        checkFiveInARowDiagonalLeft(RestOfBoard, PieceIndex, Piece, 1), write('Left Diagonal ');
         %write('Before Right'), nl,
-        checkFiveInARowDiagonalRight(RestOfBoard, PieceIndex, Piece, 1);
+        checkFiveInARowDiagonalRight(RestOfBoard, PieceIndex, Piece, 1), write('Right Diagonal ');
 
         NexIndex = PieceIndex + 1,
         append([RestOfLine], RestOfBoard, CutBoard),
