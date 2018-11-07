@@ -181,7 +181,7 @@ getPlayLineDirection(Direction) :-
     getCleanChar(DirectionChar),
     (
         DirectionChar = 'L', Direction = DirectionChar; DirectionChar = 'l', Direction = 'L';
-        DirectionChar = 'R', Direction = DirectionChar; DirectionChar = 'r', Direction = 'L'
+        DirectionChar = 'R', Direction = DirectionChar; DirectionChar = 'r', Direction = 'R'
     ), nl.
 
 getPlayLineDirection(Direction) :-
@@ -237,9 +237,9 @@ fiveInARow([[Piece | RestOfLine] | RestOfBoard], PieceIndex) :-
     Piece \= '.' ->
     (
         %write(Piece), nl,
-        checkFiveInARowRight(RestOfLine, Piece, 1), write('Horizontal ');
+        checkFiveInARowHorizontal(RestOfLine, Piece, 1), write('Horizontal ');
         %write('Before down'), nl,
-        checkFiveInARowDown(RestOfBoard, PieceIndex, Piece, 1), write('Vertical ');
+        checkFiveInARowVertical(RestOfBoard, PieceIndex, Piece, 1), write('Vertical ');
         %write('Before Diagonal Left'), nl,
         checkFiveInARowDiagonalLeft(RestOfBoard, PieceIndex, Piece, 1), write('Left Diagonal ');
         %write('Before Right'), nl,
@@ -267,15 +267,15 @@ checkFiveInARowDiagonalRight([Line | RestOfBoard], Column, PlayerPiece, NumberOf
     Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, PreviousColumn is Column + 1, 
     checkFiveInARowDiagonalRight(RestOfBoard, PreviousColumn, PlayerPiece, NextMatch).
 
-checkFiveInARowDown(_, _, _, 5).
+checkFiveInARowVertical(_, _, _, 5).
 
-checkFiveInARowDown([Line | RestOfBoard], Column, PlayerPiece, NumberOfMatches) :-
+checkFiveInARowVertical([Line | RestOfBoard], Column, PlayerPiece, NumberOfMatches) :-
     nth0(Column, Line, Piece),
     Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, 
-    checkFiveInARowDown(RestOfBoard, Column, PlayerPiece, NextMatch).
+    checkFiveInARowVertical(RestOfBoard, Column, PlayerPiece, NextMatch).
 
-checkFiveInARowRight(_, _, 5).
+checkFiveInARowHorizontal(_, _, 5).
 
-checkFiveInARowRight([Piece | RestOfLine], PlayerPiece, NumberOfMatches) :-
-    Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, checkFiveInARowRight(RestOfLine, PlayerPiece, NextMatch).
+checkFiveInARowHorizontal([Piece | RestOfLine], PlayerPiece, NumberOfMatches) :-
+    Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, checkFiveInARowHorizontal(RestOfLine, PlayerPiece, NextMatch).
 
