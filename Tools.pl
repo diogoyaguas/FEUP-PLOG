@@ -59,7 +59,7 @@ replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
 
 getCleanChar(X) :-
     get_char(X),
-    get_char(_).
+    read_line(_).
 
 getCleanInt(I) :-
     read(I),
