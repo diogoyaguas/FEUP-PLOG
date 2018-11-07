@@ -17,7 +17,7 @@ startGame(Game) :-
 updateGamePvP(Game, Player) :-
     playTurnPvP(Game, Player, PlayedGame),
     nth0(0, PlayedGame, Board),
-    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvC(PlayedGame, NextPlayer)).
+    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvP(PlayedGame, NextPlayer)).
 
 updateGamePvC(Game, Player) :-
     playTurnPvC(Game, Player, PlayedGame),
@@ -154,7 +154,7 @@ getPlayInput(Player, Play) :-
     (
         Option = '1' -> getPlayColumn(Column, Direction), Play = ['C', Column, Direction, Player];
         Option = '2' -> getPlayLine(Line, Direction), Play = ['L', Line, Direction, Player];
-        write('Invalid Input'), nl, getPlayInput(Play, Player)
+        write('Invalid Input'), nl, getPlayInput(Player, Play)
     ).
 
 getComputerInput(Player, Play, Board) :-
@@ -164,7 +164,7 @@ getComputerInput(Player, Play, Board) :-
     (
         Option = '1' -> selectColumnAndDirection(Column, Direction, Board), Play = ['C', Column, Direction, Player];
         Option = '2' -> selectLine(Line, Direction), Play = ['L', Line, Direction, Player];
-        write('Invalid Input'), nl, getComputerInput(Play, Player)
+        write('Invalid Input'), nl, getComputerInput(Player, Play, Board)
     ).
 
 getPlayLine(Line, Direction) :-
@@ -178,12 +178,10 @@ getPlayLine(Line, Direction) :-
 
 getPlayLineDirection(Direction) :-
     write('L (Left) or R (right): '),
-    getCleanChar(Direction),
+    getCleanChar(DirectionChar),
     (
-        Direction = 'L';
-        Direction = 'R';
-        Direction = 'l';
-        Direction = 'r'
+        DirectionChar = 'L', Direction = DirectionChar; DirectionChar = 'l', Direction = 'L';
+        DirectionChar = 'R', Direction = DirectionChar; DirectionChar = 'r', Direction = 'L'
     ), nl.
 
 getPlayLineDirection(Direction) :-
@@ -193,46 +191,27 @@ getPlayColumn(Column, Direction):-
     write('Column (A to S): '),
     getCleanChar(ColumnChar),
     (
-        ColumnChar = 'A';
-        ColumnChar = 'B'; 
-        ColumnChar = 'C'; 
-        ColumnChar = 'D'; 
-        ColumnChar = 'E'; 
-        ColumnChar = 'F'; 
-        ColumnChar = 'G';
-        ColumnChar = 'H'; 
-        ColumnChar = 'I'; 
-        ColumnChar = 'J'; 
-        ColumnChar = 'K';
-        ColumnChar = 'L'; 
-        ColumnChar = 'M'; 
-        ColumnChar = 'N'; 
-        ColumnChar = 'O'; 
-        ColumnChar = 'P'; 
-        ColumnChar = 'Q'; 
-        ColumnChar = 'R'; 
-        ColumnChar = 'S';
-        ColumnChar = 'a';
-        ColumnChar = 'b'; 
-        ColumnChar = 'c'; 
-        ColumnChar = 'd'; 
-        ColumnChar = 'e'; 
-        ColumnChar = 'f'; 
-        ColumnChar = 'g';
-        ColumnChar = 'h'; 
-        ColumnChar = 'i'; 
-        ColumnChar = 'j'; 
-        ColumnChar = 'k';
-        ColumnChar = 'l'; 
-        ColumnChar = 'm'; 
-        ColumnChar = 'n'; 
-        ColumnChar = 'o'; 
-        ColumnChar = 'p'; 
-        ColumnChar = 'q'; 
-        ColumnChar = 'r'; 
-        ColumnChar = 's'  
+        ColumnChar = 'A', ColumnLetter = ColumnChar; ColumnChar = 'a', ColumnLetter = 'A';
+        ColumnChar = 'B', ColumnLetter = ColumnChar; ColumnChar = 'b', ColumnLetter = 'B';
+        ColumnChar = 'C', ColumnLetter = ColumnChar; ColumnChar = 'c', ColumnLetter = 'C'; 
+        ColumnChar = 'D', ColumnLetter = ColumnChar; ColumnChar = 'd', ColumnLetter = 'D';
+        ColumnChar = 'E', ColumnLetter = ColumnChar; ColumnChar = 'e', ColumnLetter = 'E'; 
+        ColumnChar = 'F', ColumnLetter = ColumnChar; ColumnChar = 'f', ColumnLetter = 'F'; 
+        ColumnChar = 'G', ColumnLetter = ColumnChar; ColumnChar = 'g', ColumnLetter = 'G';
+        ColumnChar = 'H', ColumnLetter = ColumnChar; ColumnChar = 'h', ColumnLetter = 'H'; 
+        ColumnChar = 'I', ColumnLetter = ColumnChar; ColumnChar = 'i', ColumnLetter = 'I'; 
+        ColumnChar = 'J', ColumnLetter = ColumnChar; ColumnChar = 'j', ColumnLetter = 'J';
+        ColumnChar = 'K', ColumnLetter = ColumnChar; ColumnChar = 'k', ColumnLetter = 'K';
+        ColumnChar = 'L', ColumnLetter = ColumnChar; ColumnChar = 'l', ColumnLetter = 'L';
+        ColumnChar = 'M', ColumnLetter = ColumnChar; ColumnChar = 'm', ColumnLetter = 'M';
+        ColumnChar = 'N', ColumnLetter = ColumnChar; ColumnChar = 'n', ColumnLetter = 'N';
+        ColumnChar = 'O', ColumnLetter = ColumnChar; ColumnChar = 'o', ColumnLetter = 'O'; 
+        ColumnChar = 'P', ColumnLetter = ColumnChar; ColumnChar = 'p', ColumnLetter = 'P';
+        ColumnChar = 'Q', ColumnLetter = ColumnChar; ColumnChar = 'q', ColumnLetter = 'Q';
+        ColumnChar = 'R', ColumnLetter = ColumnChar; ColumnChar = 'r', ColumnLetter = 'R'; 
+        ColumnChar = 'S', ColumnLetter = ColumnChar; ColumnChar = 's', ColumnLetter = 'S'  
     ), nl,
-    columnDictionary(ColumnChar, Column),
+    columnDictionary(ColumnLetter, Column),
     getPlayColumnDirection(Direction).
 
 getPlayColumn(Column, Direction) :-
@@ -240,12 +219,10 @@ getPlayColumn(Column, Direction) :-
 
 getPlayColumnDirection(Direction) :-
     write('Direction (U (Up) or D (Down)): '),
-    getCleanChar(Direction),
+    getCleanChar(DirectionChar),
     (
-        Direction = 'U';
-        Direction = 'D';
-        Direction = 'u';
-        Direction = 'd'
+        DirectionChar = 'U', Direction = DirectionChar; DirectionChar = 'u', Direction = 'U';
+        DirectionChar = 'D', Direction = DirectionChar; DirectionChar = 'd', Direction = 'D'
     ), nl.
 
 getPlayColumnDirection(Direction) :-
