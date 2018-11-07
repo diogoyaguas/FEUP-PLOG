@@ -1,5 +1,6 @@
 :- include('Tools.pl').
 :- include('Game.pl').
+:- include('bot.pl').
 :- use_module(library(lists)).
 
 table([
@@ -85,7 +86,8 @@ play :-
     getCleanChar(Option),
     (
         Option = '1' -> write('Started Human vs Human'), nl, createGame('pvp');
-        Option = '2';
+        Option = '2' -> write('Started Human vs Computer'), nl, createGame('pvc');
+        option = '3' -> write('Started Computer vs Computer'), nl, createGame('cvc');
         write('Invalid Input'),
         nl,
         play

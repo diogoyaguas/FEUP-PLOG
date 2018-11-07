@@ -18,6 +18,25 @@ columnDictionary(Column, Number) :-
     Column = 'Q' -> Number = 17;
     Column = 'R' -> Number = 18;
     Column = 'S' -> Number = 19;
+    Column = 'a' -> Number = 1;
+    Column = 'b' -> Number = 2;
+    Column = 'c' -> Number = 3;
+    Column = 'd' -> Number = 4;
+    Column = 'e' -> Number = 5;
+    Column = 'f' -> Number = 6;
+    Column = 'G' -> Number = 7;
+    Column = 'h' -> Number = 8;
+    Column = 'i' -> Number = 9;
+    Column = 'j' -> Number = 10;
+    Column = 'k' -> Number = 11;
+    Column = 'l' -> Number = 12;
+    Column = 'm' -> Number = 13;
+    Column = 'n' -> Number = 14;
+    Column = 'o' -> Number = 15;
+    Column = 'p' -> Number = 16;
+    Column = 'q' -> Number = 17;
+    Column = 'r' -> Number = 18;
+    Column = 's' -> Number = 19;
     write('Invalid Column').
 
 getPiece(Line, Column , Table, Piece) :-
@@ -59,7 +78,7 @@ replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
 
 getCleanChar(X) :-
     get_char(X),
-    get_char(_).
+    get_char(_).   
 
 getCleanInt(I) :-
     read(I),

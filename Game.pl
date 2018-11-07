@@ -9,13 +9,25 @@ startGame(Game) :-
     updateGameTable(Game, NewTable, StartedGame),
     nth0(1, StartedGame, Mode),
     (
-        Mode = 'pvp' -> printBoard(NewTable), updateGamePvP(StartedGame, 'w')
+        Mode = 'pvp' -> printBoard(NewTable), updateGamePvP(StartedGame, 'w');
+        Mode = 'pvc' -> printBoard(NewTable), updateGamePvC(StartedGame, 'w');
+        Mode = 'cvc' -> printBoard(NewTable), updateGamePvP(StartedGame, 'w')
     ).
 
 updateGamePvP(Game, Player) :-
     playTurnPvP(Game, Player, PlayedGame),
     nth0(0, PlayedGame, Board),
-    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvP(PlayedGame, NextPlayer)).
+    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvC(PlayedGame, NextPlayer)).
+
+updateGamePvC(Game, Player) :-
+    playTurnPvC(Game, Player, PlayedGame),
+    nth0(0, PlayedGame, Board),
+    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvC(PlayedGame, NextPlayer)).
+
+updateGameCvC(Game, Player) :-
+    playTurnCvC(Game, Player, PlayedGame),
+    nth0(0, PlayedGame, Board),
+    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGameCvC(PlayedGame, NextPlayer)).
     
 switchPlayers(CurrentPlayer, NextPlayer) :-
     CurrentPlayer = 'w' -> NextPlayer = 'b';
@@ -35,6 +47,20 @@ playTurnPvP(Game, Player, PlayedGame) :-
     updateGameTable(Game, NewBoard, PlayedGame),
     printBoard(NewBoard).
 
+playTurnPvC(Game, Player, PlayedGame) :-
+    showPlayer(Player),
+    nth0(0, Game, Board),
+    (
+        Player = 'b' -> getComputerInput(Player, Play, Board);
+        Player = 'w' -> getPlayInput(Player, Play)
+    ),
+    (
+        play(Board, Play, NewBoard);
+        write('Invalid Play'), nl, playTurnPvC(Game, Player, PlayedGame)
+    ),
+    updateGameTable(Game, NewBoard, PlayedGame),
+    printBoard(NewBoard).
+
 play(Board, Play, NewBoard) :-
     Play = [Symbol | RestOfPlay],
     RestOfPlay = [LineNumber | _],
@@ -50,7 +76,10 @@ checkLinePlayDirection([Line | RestOfBoard], Play, LineNumber, [Head | Remainder
         Play = [_ | DirectionPlayer], DirectionPlayer = [Direction | PlayerInList], PlayerInList = [Player | _],
         (
             Direction = 'R' -> playLine(Line, Player, Head), Remainder = RestOfBoard;
+            Direction = 'r' -> playLine(Line, Player, Head), Remainder = RestOfBoard;
             Direction = 'L' -> reverse(Line, ReversedLine), playLine(ReversedLine, Player, NewReversedLine),
+            reverse(NewReversedLine, Head), Remainder = RestOfBoard;
+            Direction = 'l' -> reverse(Line, ReversedLine), playLine(ReversedLine, Player, NewReversedLine),
             reverse(NewReversedLine, Head), Remainder = RestOfBoard
         )
     );
@@ -86,7 +115,10 @@ checkColumnPlayDirection(Board, Play, NewBoard) :-
     (
         Direction = 'U' -> reverse(Board, ReversedBoard),
         playColumn(ReversedBoard, Column, Player, NewReversedBoard), reverse(NewReversedBoard, NewBoard);
-        Direction = 'D' -> playColumn(Board, Column, Player, NewBoard)
+        Direction = 'u' -> reverse(Board, ReversedBoard),
+        playColumn(ReversedBoard, Column, Player, NewReversedBoard), reverse(NewReversedBoard, NewBoard);
+        Direction = 'D' -> playColumn(Board, Column, Player, NewBoard);
+        Direction = 'd' -> playColumn(Board, Column, Player, NewBoard)
     ).
 
 playColumn([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
@@ -125,6 +157,16 @@ getPlayInput(Player, Play) :-
         write('Invalid Input'), nl, getPlayInput(Play, Player)
     ).
 
+getComputerInput(Player, Play, Board) :-
+    write('1 - Choose Column'), nl,
+    write('2 - Choose Line'), nl,
+    selectRandomOption(Option),
+    (
+        Option = '1' -> selectColumnAndDirection(Column, Direction, Board), Play = ['C', Column, Direction, Player];
+        Option = '2' -> selectLine(Line, Direction), Play = ['L', Line, Direction, Player];
+        write('Invalid Input'), nl, getComputerInput(Play, Player)
+    ).
+
 getPlayLine(Line, Direction) :-
     write('Line (1 to 19): '),
     getCleanInt(Line),
@@ -139,7 +181,9 @@ getPlayLineDirection(Direction) :-
     getCleanChar(Direction),
     (
         Direction = 'L';
-        Direction = 'R'
+        Direction = 'R';
+        Direction = 'l';
+        Direction = 'r'
     ), nl.
 
 getPlayLineDirection(Direction) :-
@@ -167,7 +211,26 @@ getPlayColumn(Column, Direction):-
         ColumnChar = 'P'; 
         ColumnChar = 'Q'; 
         ColumnChar = 'R'; 
-        ColumnChar = 'S' 
+        ColumnChar = 'S';
+        ColumnChar = 'a';
+        ColumnChar = 'b'; 
+        ColumnChar = 'c'; 
+        ColumnChar = 'd'; 
+        ColumnChar = 'e'; 
+        ColumnChar = 'f'; 
+        ColumnChar = 'g';
+        ColumnChar = 'h'; 
+        ColumnChar = 'i'; 
+        ColumnChar = 'j'; 
+        ColumnChar = 'k';
+        ColumnChar = 'l'; 
+        ColumnChar = 'm'; 
+        ColumnChar = 'n'; 
+        ColumnChar = 'o'; 
+        ColumnChar = 'p'; 
+        ColumnChar = 'q'; 
+        ColumnChar = 'r'; 
+        ColumnChar = 's'  
     ), nl,
     columnDictionary(ColumnChar, Column),
     getPlayColumnDirection(Direction).
@@ -180,7 +243,9 @@ getPlayColumnDirection(Direction) :-
     getCleanChar(Direction),
     (
         Direction = 'U';
-        Direction = 'D'
+        Direction = 'D';
+        Direction = 'u';
+        Direction = 'd'
     ), nl.
 
 getPlayColumnDirection(Direction) :-
