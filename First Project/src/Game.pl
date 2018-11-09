@@ -10,7 +10,7 @@ startGame(Game) :-
     nth0(1, StartedGame, Mode),
     (
         Mode = 'pvp' -> printBoard(NewTable), updateGamePvP(StartedGame, 'w');
-        Mode = 'pvc' -> printBoard(NewTable), updateGamePvC(StartedGame, 'w');
+        Mode = 'pvc' -> printBoard(NewTable), updateGamePvC(StartedGame, 'w', 4);
         Mode = 'cvc' -> printBoard(NewTable), updateGamePvP(StartedGame, 'w')
     ).
 
@@ -19,10 +19,10 @@ updateGamePvP(Game, Player) :-
     nth0(0, PlayedGame, Board),
     (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvP(PlayedGame, NextPlayer)).
 
-updateGamePvC(Game, Player) :-
-    playTurnPvC(Game, Player, PlayedGame),
+updateGamePvC(Game, Player, Find) :-
+    playTurnPvC(Game, Player, PlayedGame, Find),
     nth0(0, PlayedGame, Board),
-    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvC(PlayedGame, NextPlayer)).
+    (fiveInARow(Board, 0), write('Victory'); switchPlayers(Player, NextPlayer), updateGamePvC(PlayedGame, NextPlayer, Find)).
 
 updateGameCvC(Game, Player) :-
     playTurnCvC(Game, Player, PlayedGame),
@@ -47,16 +47,16 @@ playTurnPvP(Game, Player, PlayedGame) :-
     updateGameTable(Game, NewBoard, PlayedGame),
     printBoard(NewBoard).
 
-playTurnPvC(Game, Player, PlayedGame) :-
+playTurnPvC(Game, Player, PlayedGame, Find) :-
     showPlayer(Player),
     nth0(0, Game, Board),
     (
-        Player = 'b' -> getComputerInput(Player, Play, Board);
+        Player = 'b' -> getComputerInput(Player, Play, Board, Find);
         Player = 'w' -> getPlayInput(Player, Play)
     ),
     (
         play(Board, Play, NewBoard);
-        write('Invalid Play'), nl, playTurnPvC(Game, Player, PlayedGame)
+        write('Invalid Play'), nl, playTurnPvC(Game, Player, PlayedGame, Find)
     ),
     updateGameTable(Game, NewBoard, PlayedGame),
     printBoard(NewBoard).
@@ -157,14 +157,18 @@ getPlayInput(Player, Play) :-
         write('Invalid Input'), nl, getPlayInput(Player, Play)
     ).
 
-getComputerInput(Player, Play, Board) :-
+getComputerInput(Player, Play, Board, Find) :-
     write('1 - Choose Column'), nl,
     write('2 - Choose Line'), nl,
     selectRandomOption(Option),
     (
-        Option = '1' -> selectColumnAndDirection(Column, Direction, Board), Play = ['C', Column, Direction, Player];
-        Option = '2' -> selectLine(Line, Direction), Play = ['L', Line, Direction, Player];
-        write('Invalid Input'), nl, getComputerInput(Player, Play, Board)
+        Option = 1 -> 
+        (
+            selectColumn(Board, 1, Column, Find), Direction = 'D', Column \= -1, write('oiiii') -> Play = ['C', Column, Direction, Player];
+            reverse(Board, ReversedBoard), selectColumn(ReversedBoard, 1, Column, Find), Direction = 'U', Play = ['C', Column, Direction, Player]
+        );
+        Option = 2 -> write('2');
+        write('Invalid Input'), nl
     ).
 
 getPlayLine(Line, Direction) :-
@@ -236,13 +240,9 @@ fiveInARow([[Piece | RestOfLine] | RestOfBoard], PieceIndex) :-
     RestOfLine = [] -> fiveInARow(RestOfBoard, 0);
     Piece \= '.' ->
     (
-        %write(Piece), nl,
         checkFiveInARowHorizontal(RestOfLine, Piece, 1), write('Horizontal ');
-        %write('Before down'), nl,
         checkFiveInARowVertical(RestOfBoard, PieceIndex, Piece, 1), write('Vertical ');
-        %write('Before Diagonal Left'), nl,
         checkFiveInARowDiagonalLeft(RestOfBoard, PieceIndex, Piece, 1), write('Left Diagonal ');
-        %write('Before Right'), nl,
         checkFiveInARowDiagonalRight(RestOfBoard, PieceIndex, Piece, 1), write('Right Diagonal ');
 
         NexIndex = PieceIndex + 1,
