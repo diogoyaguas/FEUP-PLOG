@@ -1,3 +1,5 @@
+:- use_module(library(clpfd)).
+
 createGame(Mode) :-
     table(Table),
     Game = [Table, Mode],
@@ -160,15 +162,36 @@ getPlayInput(Player, Play) :-
 getComputerInput(Player, Play, Board, Find) :-
     write('1 - Choose Column'), nl,
     write('2 - Choose Line'), nl,
-    selectRandomOption(Option),
     (
-        Option = 1 -> 
-        (
-            selectColumn(Board, 1, Column, Find), Direction = 'D', Column \= -1, write('oiiii') -> Play = ['C', Column, Direction, Player];
-            reverse(Board, ReversedBoard), selectColumn(ReversedBoard, 1, Column, Find), Direction = 'U', Play = ['C', Column, Direction, Player]
-        );
-        Option = 2 -> write('2');
+        selectMovement(Board, 1, Column, Find), Direction = 'D', Column \= -1 -> Play = ['C', Column, Direction, Player], writeOptions(1, Play);
+        reverse(Board, ReversedBoard), selectMovement(ReversedBoard, 1, Column, Find), nl, Direction = 'U', Column \= -1 -> Play = ['C', Column, Direction, Player], writeOptions(1, Play);
+        transpose(Board, NewBoard), selectMovement(NewBoard, 1, Line, Find), Direction = 'R', Line \= -1 -> Play = ['L', Line, Direction, Player], writeOptions(2, Play);
+        transpose(Board, NewBoard), reverse(NewBoard, ReversedBoard), selectMovement(ReversedBoard, 1, Line, Find), Direction = 'L', Line \= -1 -> Play = ['L', Line, Direction, Player], writeOptions(2, Play);
         write('Invalid Input'), nl
+    ).
+
+writeOptions(Option, Play) :-
+    Option = 1 ->
+    (
+        nth1(2, Play, Column),
+        nth1(3, Play, Direction), 
+        write('|: '),
+        write(Option), nl,
+        write('Column (A to S): '),
+        write(Column), nl,
+        write('Direction (U (Up) or D (Down)): '),
+        write(Direction), nl, nl
+    );
+    Option = 2 ->
+    (
+        nth1(2, Play, Line),
+        nth1(3, Play, Direction),
+        write('|: '),
+        write(Option), nl,
+        write('Line (1 to 19): '),
+        write(Line), nl,
+        write('L (Left) or R (right): '),
+        write(Direction), nl, nl
     ).
 
 getPlayLine(Line, Direction) :-
@@ -214,7 +237,7 @@ getPlayColumn(Column, Direction):-
         ColumnChar = 'Q', ColumnLetter = ColumnChar; ColumnChar = 'q', ColumnLetter = 'Q';
         ColumnChar = 'R', ColumnLetter = ColumnChar; ColumnChar = 'r', ColumnLetter = 'R'; 
         ColumnChar = 'S', ColumnLetter = ColumnChar; ColumnChar = 's', ColumnLetter = 'S'  
-    ), nl,
+    ), 
     columnDictionary(ColumnLetter, Column),
     getPlayColumnDirection(Direction).
 
