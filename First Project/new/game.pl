@@ -45,13 +45,12 @@ play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
     (
         Piece \= empty, get_piece_in_column(Column, Line, LocalPiece), LocalPiece = empty,
         (
-            length(RestOfBoard, L), L >= 2 -> 
+            (length(RestOfBoard, L), L >= 2, 
                 (
                     nth1(2, RestOfBoard, SecondLine), 
                     get_piece_in_column(Column, SecondLine, NextPiece),
                     (
-                        NextPiece \= empty -> replace_element(Column, Line, Player, Head),
-                        Remainder = RestOfBoard;
+                        (NextPiece \= empty, replace_element(Column, Line, Player, Head), Remainder = RestOfBoard); true,
 
                         replace_element(Column, SecondLine, Piece, NewBottomLine),
                         replace_element(2, RestOfBoard, NewBottomLine, NewRestOfBoard),
@@ -59,7 +58,7 @@ play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
                         replace_element(1, NewRestOfBoard, NewLine, Remainder),
                         Head = Line
                     )
-                );
+                ));
                 replace_element(Column, Line, Player, Head), Remainder = RestOfBoard
         ) 
     );
@@ -70,17 +69,17 @@ play_line([Head | RestOfLine], Player, [NewHead | Remainder]) :-
     (
         NextPiece \= empty, Head = empty,
         (
-            length(RestOfLine, L), L >= 2 ->
+            (length(RestOfLine, L), L >= 2,
             (
                 nth1(2, RestOfLine, SecondPiece),
                 (
-                    SecondPiece \= empty -> NewHead = Player, Remainder = RestOfLine;
+                    (SecondPiece \= empty, NewHead = Player, Remainder = RestOfLine) ; true,
 
                     replace_element(2, RestOfLine, NextPiece, NewRestOfLine),
                     replace_element(1, NewRestOfLine, Player, Remainder),
                     NewHead = Head
                 )
-            );
+            ));
             NewHead = Player, Remainder = RestOfLine
         )
     );
