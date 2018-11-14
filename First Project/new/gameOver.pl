@@ -44,3 +44,9 @@ check_game_over_horizontal(_, _, 5).
 
 check_game_over_horizontal([Piece | RestOfLine], PlayerPiece, NumberOfMatches) :-
     Piece = PlayerPiece -> NextMatch is NumberOfMatches + 1, check_game_over_horizontal(RestOfLine, PlayerPiece, NextMatch).
+
+victory('w') :-
+    write('White victory!'), !.
+
+victory('b') :-
+    write('Black victory!').
