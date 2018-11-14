@@ -1,77 +1,54 @@
-columnDictionary(Column, Number) :-
-    Column = 'A' -> Number = 1;
-    Column = 'B' -> Number = 2;
-    Column = 'C' -> Number = 3;
-    Column = 'D' -> Number = 4;
-    Column = 'E' -> Number = 5;
-    Column = 'F' -> Number = 6;
-    Column = 'G' -> Number = 7;
-    Column = 'H' -> Number = 8;
-    Column = 'I' -> Number = 9;
-    Column = 'J' -> Number = 10;
-    Column = 'K' -> Number = 11;
-    Column = 'L' -> Number = 12;
-    Column = 'M' -> Number = 13;
-    Column = 'N' -> Number = 14;
-    Column = 'O' -> Number = 15;
-    Column = 'P' -> Number = 16;
-    Column = 'Q' -> Number = 17;
-    Column = 'R' -> Number = 18;
-    Column = 'S' -> Number = 19;
-    write('Invalid Column').
-
-getPiece(Line, Column , Table, Piece) :-
-    table(Table),
-    getLine(Line, Table, ActualLine),
-    getPieceInColumn(Column, ActualLine, Piece).
-
-getLine(1, [Line | _ ], Line).
-getLine(N, [ _ | Remainder], Line) :-
+get_line(1, [Line | _ ], Line).
+get_line(N, [ _ | Remainder], Line) :-
     N > 1,
     Previous is N - 1,
-    getLine(Previous, Remainder, Line).
+    get_line(Previous, Remainder, Line).
 
-getPieceInColumn(1, [Piece | _ ], Piece).
-getPieceInColumn(N, [ _ | Remainder], Piece) :-
+get_piece_in_column(1, [Piece | _ ], Piece).
+get_piece_in_column(N, [ _ | Remainder], Piece) :-
     N > 1,
     Previous is N - 1,
-    getPieceInColumn(Previous, Remainder, Piece).
+    get_piece_in_column(Previous, Remainder, Piece).
 
-replacePiece(Column, Line, NewElement, Board, NewBoard) :-
+replace_piece(Column, Line, NewElement, Board, NewBoard) :-
     table(Board),
-    getLine(Line, Board, List),
-    replaceElement(Column, List, NewElement, NewLine),
-    replaceLine(Line, Board, NewLine, NewBoard).
+    get_line(Line, Board, List),
+    replace_element(Column, List, NewElement, NewLine),
+    replace_line(Line, Board, NewLine, NewBoard).
 
-replaceElement(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
+replace_element(1, [ _ | Remainder], NewElement, [NewElement | Remainder]).
 
-replaceElement(Column, [ Head | Remainder], NewElement, [Head | NewLine]) :-
+replace_element(Column, [ Head | Remainder], NewElement, [Head | NewLine]) :-
     Column > 1,
     Previous is Column - 1,
-    replaceElement(Previous, Remainder, NewElement, NewLine).
+    replace_element(Previous, Remainder, NewElement, NewLine).
 
-replaceLine(1, [_ | Remainder], NewList, [NewList | Remainder]).
+replace_line(1, [_ | Remainder], NewList, [NewList | Remainder]).
     
-replaceLine(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
+replace_line(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
     Line > 1,
     Previous is Line - 1,
-    replaceLine(Previous, Remainder, NewList, NewLine).
+    replace_line(Previous, Remainder, NewList, NewLine).
 
-getCleanChar(X) :-
+get_clean_char(X) :-
     get_char(X),
     read_line(_).
 
-getCleanInt(I) :-
+get_clean_int(I) :-
     read(I),
     get_char(_),
     integer(I).
         
-getCleanInt(I) :-
-    write('Invalid Input'), nl, getCleanInt(I).
-    
-newLine(1) :-
-    nl.
-newLine(N) :-
-    NewN is N - 1,
-    nl,
-    newLine(NewN).
+get_clean_int(I) :-
+    write('Invalid Input'), nl, get_clean_int(I).
+
+printListOfMoves(ListOfMoves, Index) :-
+    nth1(Index, ListOfMoves, Play), nl,
+    nth0(0, Play, Symbol),
+    (
+        Symbol = 'C' -> nth0(1, Play, Column), nth0(2, Play, Direction), write(Index), write(' - Column '), write(Column), write(Direction),
+        Symbol = 'L' -> nth0(1, Play, Line), nth0(2, Play, Direction), write(Index), write(' - Line '), write(Line), write(Direction)
+    ), nl, 
+    length(ListOfMoves, L), Index = L -> true;
+    NewIndex is (Index + 1),
+    printListOfMoves(ListOfMoves, NewIndex).
