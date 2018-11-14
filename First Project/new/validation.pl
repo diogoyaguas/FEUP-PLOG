@@ -1,45 +1,38 @@
 valid_moves(Board, ListOfMoves) :-
-    verify_vertical_moves(Board, VerticalMoves), 
-    ListOfMoves = VerticalMoves.
+    verify_moves(Board, [], 1, 'L', HorizontalMoves), 
+    transpose(Board, TransposedBoard),
+    verify_moves(TransposedBoard, [], 1, 'C', VerticalMoves),
+    append(HorizontalMoves, VerticalMoves, ListOfMoves).
 
-verify_vertical_moves(Board, VerticalMoves) :-
-    verify_moves(Board, 'b', Moves, 'C', 'D', 1, 4, VerticalDownMovesB),
-    append(VerticalDownMovesB, VerticalDownMovesW, VerticalMoves).
-
-verify_moves([ ], _, Moves, _, _, _, _, ListOfMoves) :-
+verify_moves([ ], Moves, _, _, ListOfMoves) :-
     ListOfMoves = Moves.
 
-verify_moves([[Piece | RestOfLine] | RestOfBoard], Player, Moves, Symbol, Direction, Index, Find, ListOfMoves) :-
-    RestOfLine = [], verify_moves(RestOfBoard, Player, Moves, Symbol, Direction, 1, Find, ListOfMoves);
-    check_moves(Piece, RestOfBoard, Index, Player, Find, Symbol, Direction, Moves, RestOfLine, ListOfMoves);
-    next_movement(Player, Index, RestOfLine, RestOfBoard, Find, Symbol, Direction, Moves, ListOfMoves).
-
-check_moves(empty, RestOfBoard, Index, Player, Find, Symbol, Direction, Moves, RestOfLine, ListOfMoves) :-
-    check_movement(RestOfBoard, Index, Player, Find),
-    Play = [Symbol, Index, Direction, Player],
-    append([Play], Moves, NewMoves),
-    next_movement(Player, Index, RestOfLine, RestOfBoard, Find, Symbol, Direction, NewMoves, ListOfMoves).
-
-check_moves('b', RestOfBoard, Index, Player, Find, Symbol, Direction, Moves, RestOfLine, ListOfMoves) :-
-    next_movement(Player, Index, RestOfLine, RestOfBoard, Find, Symbol, Direction, Moves, ListOfMoves).
-
-check_moves('w', RestOfBoard, Index, Player, Find, Symbol, Direction, Moves, RestOfLine, ListOfMoves) :-
-    next_movement(Player, Index, RestOfLine, RestOfBoard, Find, Symbol, Direction, Moves, ListOfMoves).
-
-next_movement(Player, Index, RestOfLine, RestOfBoard, Find, Symbol, Direction, Moves, ListOfMoves) :-
-    NextIndex is Index + 1,
-    append([RestOfLine], RestOfBoard, CutBoard),
-    verify_moves(CutBoard, Player, Moves, Symbol, Direction, NextIndex, Find, ListOfMoves).
-
-check_movement(_, _, _, 5).
-
-check_movement([Line | RestOfBoard], Index, PlayerPiece, NumberOfMatches) :-
-    nth1(Index, Line, Piece),
+verify_moves([Line | RestOfBoard], Moves, Index, Symbol, ListOfMoves) :-
     (
-        Piece = PlayerPiece,
-        NextMatch is NumberOfMatches + 1,
-        check_movement(RestOfBoard, Index, PlayerPiece, NextMatch)
-    ).
+        (member('w', Line), Player = 'w'; member('b', Line), Player = 'b'),
+        (
+            (
+                get_last_element(Line, LastElement),
+                LastElement = empty,
+                (Symbol = 'L', FirstDirection = 'L'; Symbol = 'C', FirstDirection = 'D'),
+                PlayOne = [Symbol, Index, FirstDirection, Player]
+            ); PlayOne = []
+        ),
+        (
+            (
+                nth0(0, Line, FirstElement),
+                FirstElement = empty,
+                (Symbol = 'L', SecondDirection = 'R'; Symbol = 'C', SecondDirection = 'U'),
+                PlayTwo = [Symbol, Index, SecondDirection, Player]
+            ); PlayTwo = []
+        ),
+        append([PlayOne], Moves, NewMoves),
+        append([PlayTwo], NewMoves, NewNewMoves),
+        NextIndex is (Index + 1),
+        verify_moves(RestOfBoard, NewNewMoves, NextIndex, Symbol, ListOfMoves)
+    );
+    NextIndex is (Index + 1),
+    verify_moves(RestOfBoard, Moves, NextIndex, Symbol, ListOfMoves).
 
 check_play('C', Board, Play, NewBoard) :-
     Play = [Column | DirectionPlayer],

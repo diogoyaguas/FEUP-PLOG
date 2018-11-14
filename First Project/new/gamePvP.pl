@@ -19,8 +19,7 @@ play_turn_PvP(Game, Player, PlayedGame) :-
     PrintList = ListOfMoves,
     printListOfMoves(PrintList, 1),
     get_human_input(Player, ListOfMoves, Move),   
-    move(Move, Board, NewBoard);
-    write(NewBoard), nl, 
+    move(Move, Board, NewBoard),
     update_game_table(Game, NewBoard, PlayedGame),
     printBoard(NewBoard).
 

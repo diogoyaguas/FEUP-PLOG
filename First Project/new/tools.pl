@@ -30,6 +30,11 @@ replace_line(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
     Previous is Line - 1,
     replace_line(Previous, Remainder, NewList, NewLine).
 
+get_last_element([Head | []], Head).
+
+get_last_element([Head | Tail], LastElement) :-
+    get_last_element(Tail, LastElement).
+
 get_clean_char(X) :-
     get_char(X),
     read_line(_).
