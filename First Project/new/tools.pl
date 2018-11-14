@@ -37,12 +37,30 @@ get_last_element([_ | Tail], LastElement) :-
 
 get_clean_char(X) :-
     get_char(X),
-    read_line(_).
+    read_line(_),
+    nl.
 
 get_clean_int(I) :-
     read(I),
     get_char(_),
-    integer(I).
+    integer(I),
+    nl.
         
 get_clean_int(I) :-
     write('Invalid Input'), nl, get_clean_int(I).
+
+capitalize_char(Char, CapitalizedChar) :-
+    char_code(Char, Code),
+    Code >= 97, 
+    Code =< 122, 
+    CapitalizedCharCode is (Code - 32), 
+    char_code(CapitalizedChar, CapitalizedCharCode).
+
+capitalize_char(Char, Char).
+
+column_dictionary(Column, Number) :-
+    char_code(Column, Code),
+    Code >= 65,
+    Code =< 83,
+    Number is (Code - 64).
+      

@@ -27,10 +27,17 @@ switch_players(CurrentPlayer, NextPlayer) :-
     );
     NextPlayer = 'w'.
 
-move(Move, Board, NewBoard) :-
-    Move = [Symbol | RestOfPlay],
-    check_play(Symbol, Board, RestOfPlay, NewBoard);
-    write('Error in Play Symbol').
+move(Move, MoveList, Board, NewBoard) :-
+    (
+        member(Move, MoveList),
+        Move = [Symbol | RestOfPlay],
+        (
+            Symbol = 'C', check_column_play_direction(Board, RestOfPlay, NewBoard);
+            RestOfPlay = [LineNumber | _], 
+            Symbol = 'L', check_line_play_direction(Board, RestOfPlay, LineNumber, NewBoard)
+        )
+    );
+    write('Invalid Play'), nl, false.
 
 play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
     nth1(1, RestOfBoard, NextLine),
@@ -78,3 +85,27 @@ play_line([Head | RestOfLine], Player, [NewHead | Remainder]) :-
         )
     );
     NewHead = Head, play_line(RestOfLine, Player, Remainder).
+
+check_column_play_direction(Board, Play, NewBoard) :-
+    Play = [Column | DirectionPlayer],
+    DirectionPlayer = [Direction | PlayerInList],
+    PlayerInList = [Player | _],
+    (
+        (Direction = 'U', reverse(Board, ReversedBoard), play_column(ReversedBoard, Column, Player, NewReversedBoard), 
+            reverse(NewReversedBoard, NewBoard));
+        (Direction = 'D', play_column(Board, Column, Player, NewBoard))
+    ).
+
+check_line_play_direction([Line | RestOfBoard], Play, LineNumber, [Head | Remainder]) :-
+    (
+        LineNumber = 1,
+        Play = [_ | DirectionPlayer], DirectionPlayer = [Direction | PlayerInList], PlayerInList = [Player | _],
+        (
+            (Direction = 'R', play_line(Line, Player, Head), Remainder = RestOfBoard);
+            (Direction = 'L', reverse(Line, ReversedLine), play_line(ReversedLine, Player, NewReversedLine),
+            reverse(NewReversedLine, Head), Remainder = RestOfBoard)
+        )
+    );
+    NextLineNumber is LineNumber - 1,
+    Head = Line,
+    check_line_play_direction(RestOfBoard, Play, NextLineNumber, Remainder).

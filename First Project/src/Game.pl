@@ -11,9 +11,9 @@ start_game(Game) :-
     update_game_table(Game, NewTable, StartedGame),
     nth0(1, StartedGame, Mode),
     (
-        Mode = 'pvp' -> printBoard(NewTable), update_game_PvP(StartedGame, 'w');
-        Mode = 'pvc' -> printBoard(NewTable), update_game_PvC(StartedGame, 'w', 4);
-        Mode = 'cvc' -> printBoard(NewTable), update_game_CvC(StartedGame, 'w', 4)
+        (Mode = 'pvp', printBoard(NewTable), update_game_PvP(StartedGame, 'w'));
+        (Mode = 'pvc', printBoard(NewTable), update_game_PvC(StartedGame, 'w', 4));
+        Mode = 'cvc', printBoard(NewTable), update_game_CvC(StartedGame, 'w', 4))
     ).
     
 switch_players(CurrentPlayer, NextPlayer) :-

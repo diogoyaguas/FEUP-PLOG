@@ -1,19 +1,21 @@
-valid_moves(Board, ListOfMoves) :-
-    verify_moves(Board, [], 1, 'L', HorizontalMoves), 
-    append(HorizontalMoves, [], ListOfMoves).
+valid_moves(Board, ListOfMoves, Player) :-
+    get_moves(Board, [], 1, 'L', Player, HorizontalMoves), 
+    transpose(Board, TransposedBoard),
+    get_moves(TransposedBoard, [], 1, 'C', Player, VerticalMoves),
+    append(HorizontalMoves, VerticalMoves, ListOfMoves).
 
-verify_moves([ ], Moves, _, _, ListOfMoves) :-
-    ListOfMoves = Moves.
+get_moves([ ], Moves, _, _, _, Moves).
 
-verify_moves([Line | RestOfBoard], Moves, Index, Symbol, ListOfMoves) :-
+get_moves([Line | RestOfBoard], Moves, Index, Symbol, Player, ListOfMoves) :-
     (
-        (member('w', Line); member('b', Line)),
+        has_pieces(Line),
         (
             (
                 get_last_element(Line, LastElement),
                 LastElement = empty,
                 (Symbol = 'L', FirstDirection = 'L'; Symbol = 'C', FirstDirection = 'D'),
-                PlayOne = [Symbol, Index, FirstDirection]
+                PlayOne = [Symbol, Index, FirstDirection, Player],
+                append([PlayOne], Moves, NewMoves)
             ); PlayOne = []
         ),
         (
@@ -21,66 +23,17 @@ verify_moves([Line | RestOfBoard], Moves, Index, Symbol, ListOfMoves) :-
                 nth0(0, Line, FirstElement),
                 FirstElement = empty,
                 (Symbol = 'L', SecondDirection = 'R'; Symbol = 'C', SecondDirection = 'U'),
-                PlayTwo = [Symbol, Index, SecondDirection]
+                PlayTwo = [Symbol, Index, SecondDirection, Player],
+                ((PlayOne \= [], append([PlayTwo], NewMoves, NewMoves2)); append([PlayTwo], Moves, NewMoves2))
             ); PlayTwo = []
         ),
-        append([PlayOne], Moves, NewMoves),
-        append([PlayTwo], NewMoves, NewNewMoves),
         NextIndex is (Index + 1),
-        write(Index), nl, 
-        verify_moves(RestOfBoard, NewNewMoves, NextIndex, Symbol, ListOfMoves)
+        ((PlayTwo \= [], get_moves(RestOfBoard, NewMoves2, NextIndex, Symbol, Player, ListOfMoves)); 
+            get_moves(RestOfBoard, NewMoves, NextIndex, Symbol, Player, ListOfMoves))
     );
     NextIndex is (Index + 1),
-    verify_moves(RestOfBoard, Moves, NextIndex, Symbol, ListOfMoves).
+    get_moves(RestOfBoard, Moves, NextIndex, Symbol, Player, ListOfMoves).
 
-check_play('C', Board, Play, NewBoard) :-
-    Play = [Column | DirectionPlayer],
-    DirectionPlayer = [Direction | PlayerInList],
-    PlayerInList = [Player | _],
-    check_direction(Direction, Board, Column, Player, NewBoard).
-
-check_play('L', Board, Play, NewBoard) :-
-    (
-        LineNumber = 1,
-        Play = [_ | DirectionPlayer], DirectionPlayer = [Direction | PlayerInList], PlayerInList = [Player | _],
-        check_direction(Direction, Board, Column, Player, NewBoard, Remainder)
-    );
-    NextLineNumber is LineNumber - 1,
-    Head = Line,
-    check_line_play_direction(RestOfBoard, Play, NextLineNumber, Remainder).
-
-check_direction('U', Board, Column, Player, NewBoard) :-
-    reverse(Board, ReversedBoard),
-    play_column(ReversedBoard, Column, Player, NewReversedBoard),
-    reverse(NewReversedBoard, NewBoard).
-
-check_direction('u', Board, Column, Player, NewBoard) :-
-    reverse(Board, ReversedBoard),
-    play_column(ReversedBoard, Column, Player, NewReversedBoard),
-    reverse(NewReversedBoard, NewBoard).
-
-check_direction('D', Board, Column, Player, NewBoard) :-
-    play_column(Board, Column, Player, NewBoard).
-
-check_direction('d', Board, Column, Player, NewBoard) :-
-    play_column(Board, Column, Player, NewBoard).
-
-check_direction('L', Board, Column, Player, NewBoard, Remainder) :-
-    reverse(Line, ReversedLine), 
-    play_line(ReversedLine, Player, NewReversedLine),
-    reverse(NewReversedLine, Head), 
-    Remainder = RestOfBoard.
-
-check_direction('l', Board, Column, Player, NewBoard, Remainder) :-
-    reverse(Line, ReversedLine), 
-    play_line(ReversedLine, Player, NewReversedLine),
-    reverse(NewReversedLine, Head), 
-    Remainder = RestOfBoard.
-
-check_direction('R', Board, Column, Player, NewBoard, Remainder) :-
-    play_line(Line, Player, Head), 
-    Remainder = RestOfBoard.
-
-check_direction('r', Board, Column, Player, NewBoard, Remainder) :-
-    play_line(Line, Player, Head), 
-    Remainder = RestOfBoard.
+has_pieces([Head | RestOfList]) :-
+    Head \= [],
+    (Head \= 'empty'; has_pieces(RestOfList)).
