@@ -32,7 +32,7 @@ replace_line(Line, [Head | Remainder], NewList, [Head | NewLine]) :-
 
 get_last_element([Head | []], Head).
 
-get_last_element([Head | Tail], LastElement) :-
+get_last_element([_ | Tail], LastElement) :-
     get_last_element(Tail, LastElement).
 
 get_clean_char(X) :-

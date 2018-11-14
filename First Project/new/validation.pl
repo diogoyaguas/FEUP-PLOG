@@ -1,21 +1,19 @@
 valid_moves(Board, ListOfMoves) :-
     verify_moves(Board, [], 1, 'L', HorizontalMoves), 
-    transpose(Board, TransposedBoard),
-    verify_moves(TransposedBoard, [], 1, 'C', VerticalMoves),
-    append(HorizontalMoves, VerticalMoves, ListOfMoves).
+    append(HorizontalMoves, [], ListOfMoves).
 
 verify_moves([ ], Moves, _, _, ListOfMoves) :-
     ListOfMoves = Moves.
 
 verify_moves([Line | RestOfBoard], Moves, Index, Symbol, ListOfMoves) :-
     (
-        (member('w', Line), Player = 'w'; member('b', Line), Player = 'b'),
+        (member('w', Line); member('b', Line)),
         (
             (
                 get_last_element(Line, LastElement),
                 LastElement = empty,
                 (Symbol = 'L', FirstDirection = 'L'; Symbol = 'C', FirstDirection = 'D'),
-                PlayOne = [Symbol, Index, FirstDirection, Player]
+                PlayOne = [Symbol, Index, FirstDirection]
             ); PlayOne = []
         ),
         (
@@ -23,12 +21,13 @@ verify_moves([Line | RestOfBoard], Moves, Index, Symbol, ListOfMoves) :-
                 nth0(0, Line, FirstElement),
                 FirstElement = empty,
                 (Symbol = 'L', SecondDirection = 'R'; Symbol = 'C', SecondDirection = 'U'),
-                PlayTwo = [Symbol, Index, SecondDirection, Player]
+                PlayTwo = [Symbol, Index, SecondDirection]
             ); PlayTwo = []
         ),
         append([PlayOne], Moves, NewMoves),
         append([PlayTwo], NewMoves, NewNewMoves),
         NextIndex is (Index + 1),
+        write(Index), nl, 
         verify_moves(RestOfBoard, NewNewMoves, NextIndex, Symbol, ListOfMoves)
     );
     NextIndex is (Index + 1),
