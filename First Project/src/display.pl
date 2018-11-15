@@ -59,8 +59,8 @@ printList([]).
 printList([H|T]) :-
     (
         H = empty, write('.');
-        H = 'b', write('b');
-        H = 'w', write('w')
+        H = 'b', put_code(9679);
+        H = 'w', put_code(9675)
     ),
     write('|'),
     printList(T).
