@@ -22,14 +22,12 @@ update_game_table(Game, NewTable, StartedGame) :-
     replace_element(1, Game, NewTable, StartedGame).
 
 switch_players(CurrentPlayer, NextPlayer) :-
-    (
-        CurrentPlayer = 'w', NextPlayer = 'b'
-    );
+    CurrentPlayer = 'w', NextPlayer = 'b';
     NextPlayer = 'w'.
 
 move(Move, MoveList, Board, NewBoard) :-
     (
-        member(Move, MoveList),
+        member(Move, MoveList), 
         Move = [Symbol | RestOfPlay],
         (
             Symbol = 'C', check_column_play_direction(Board, RestOfPlay, NewBoard);
