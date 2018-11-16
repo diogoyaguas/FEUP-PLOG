@@ -7,13 +7,13 @@ valid_moves(Board, ListOfMoves, Player) :-
 get_moves([ ], Moves, _, _, _, Moves).
 
 get_moves([Line | RestOfBoard], Moves, Index, Symbol, Player, ListOfMoves) :-
-        has_pieces(Line), !,
+        has_pieces(Line), 
         check_last_element_and_add_play(Line, Moves, Index, Symbol, Player, PlayOne, NewMoves),
         check_first_element_and_add_play(Line, NewMoves, Index, Symbol, Player, PlayOne, PlayTwo, NewMoves2),
         NextIndex is (Index + 1),
         (
             (PlayTwo \= [], get_moves(RestOfBoard, NewMoves2, NextIndex, Symbol, Player, ListOfMoves));
-             
+
             get_moves(RestOfBoard, NewMoves, NextIndex, Symbol, Player, ListOfMoves)
         ).
     
