@@ -2,7 +2,7 @@ startPvP(Game) :-
     nth0(0, Game, Table),
     replace_piece(10, 10, 'b', Table, NewTable),
     update_game_table(Game, NewTable, StartedGame),
-    printBoard(NewTable), update_game_PvP(StartedGame, 'w').
+    update_game_PvP(StartedGame, 'w').
 
 update_game_PvP(Game, Player) :-
     play_turn_PvP(Game, Player, PlayedGame),
@@ -13,16 +13,15 @@ update_game_PvP(Game, Player) :-
     ).
 
 play_turn_PvP(Game, Player, PlayedGame) :-
-    showPlayer(Player),
     nth0(0, Game, Board),
+    display_game(Board, Player),
     valid_moves(Board, ListOfMoves, Player),
     get_play_input(Player, Move),
     (
         move(Move, ListOfMoves, Board, NewBoard);
         !, printBoard(Board), nl, play_turn_PvP(Game, Player, PlayedGame)
     ),
-    update_game_table(Game, NewBoard, PlayedGame),
-    printBoard(NewBoard).
+    update_game_table(Game, NewBoard, PlayedGame).
 
 get_play_input(Player, Play) :-
     write('1 - Choose Column'), nl,
