@@ -19,7 +19,7 @@ play_turn_PvP(Game, Player, PlayedGame) :-
     get_play_input(Player, Move),
     (
         move(Move, ListOfMoves, Board, NewBoard);
-        !, printBoard(Board), nl, play_turn_PvP(Game, Player, PlayedGame)
+        !, print_board(Board), nl, play_turn_PvP(Game, Player, PlayedGame)
     ),
     update_game_table(Game, NewBoard, PlayedGame).
 
