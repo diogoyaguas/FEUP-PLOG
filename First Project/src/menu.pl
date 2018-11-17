@@ -8,10 +8,10 @@ displayMenu :-
     write('4 - Exit\n').
 
 % Executes the appropriate actions depending on the option chosen
-menu_option('1'):-  start_game(1, 1).
-menu_option('2'):-  bot_difficulty(2). 
-menu_option('3'):-  bot_difficulty(3).
-menu_option('4'):-  halt.
+menu_option('1'):-  start_game(1, 1), sleep(7), !, play.
+menu_option('2'):-  bot_difficulty(2), sleep(7), !, play. 
+menu_option('3'):-  bot_difficulty(3), sleep(7), !, play.
+menu_option('4').
 
 menu_option(Option):-   
     Option \= '1',
