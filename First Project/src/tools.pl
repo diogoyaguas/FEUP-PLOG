@@ -35,6 +35,12 @@ get_last_element([Head | []], Head).
 get_last_element([_ | Tail], LastElement) :-
     get_last_element(Tail, LastElement).
 
+get_second_to_last_element([Head | [_ | []]], Head) :-
+    !.
+
+get_second_to_last_element([_ | [Head2 | Tail]], SecondToLastElement) :-
+    get_second_to_last_element([Head2 | Tail], SecondToLastElement).
+
 get_clean_char(X) :-
     get_char(X),
     read_line(_),

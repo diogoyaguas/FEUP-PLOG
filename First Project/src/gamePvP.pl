@@ -19,7 +19,7 @@ play_turn_PvP(Game, Player, PlayedGame) :-
     get_play_input(Player, Move),
     (
         move(Move, ListOfMoves, Board, NewBoard);
-        !, print_board(Board), nl, play_turn_PvP(Game, Player, PlayedGame)
+        !, play_turn_PvP(Game, Player, PlayedGame)
     ),
     update_game_table(Game, NewBoard, PlayedGame).
 
@@ -58,7 +58,7 @@ get_play_column(Column, Direction):-
     get_play_column_direction(Direction).
 
 get_play_column(Column, Direction) :-
-    write('Invalid Option'), nl, get_play_column_direction(Column, Direction).  
+    write('Invalid Option'), nl, get_play_column(Column, Direction).  
 
 get_play_column_direction(Direction) :-
     write('Direction (U (Up) or D (Down)): '),
