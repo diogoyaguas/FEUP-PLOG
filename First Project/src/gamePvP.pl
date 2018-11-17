@@ -8,7 +8,7 @@ update_game_PvP(Game, Player) :-
     play_turn_PvP(Game, Player, PlayedGame),
     nth0(0, PlayedGame, Board),
     (
-        game_over(Board, Winner, 0), victory(Winner); 
+        game_over(Board, Winner, 0), victory(Winner), print_board(Board); 
         switch_players(Player, NextPlayer), update_game_PvP(PlayedGame, NextPlayer)
     ).
 
