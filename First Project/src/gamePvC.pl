@@ -36,16 +36,13 @@ play_turn_PvC(Game, Player, PlayedGame) :-
 
 % Writes the bot input 
 write_move(Symbol, Move) :-
-    write('1 - Choose Column'), nl,
-    write('2 - Choose Line'), nl,
-    write('|: '),
+    write('Calculating move.....\n'),
     random(2, 5, Time),
     sleep(Time),
     (
         Symbol = 'C',
         nth1(2, Move, Index),
         nth1(3, Move, Direction), 
-        write(1), nl,
         write('\nColumn (A to S): '),
         Code is (Index + 64),
         char_code(Column, Code),
@@ -57,7 +54,6 @@ write_move(Symbol, Move) :-
         Symbol = 'L',
         nth1(2, Move, Line),
         nth1(3, Move, Direction),
-        write(2), nl,
         write('\nLine (1 to 19): '),
         write(Line), nl,
         write('\nL (Left) or R (right): '),

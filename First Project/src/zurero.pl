@@ -14,4 +14,6 @@
 play :-
     displayMenu,
     get_clean_char(Option),
-    menu_option(Option).
+    menu_option(Option),
+    sleep(10),
+    play.
