@@ -35,7 +35,7 @@ move(Move, MoveList, Board, NewBoard) :-
     check_play_type(Symbol, RestOfPlay, Board, NewBoard).
 
 move(_, _, _, _) :-
-    write('Invalid Play'), nl, nl, false.
+    write('<<< Invalid Play >>>\n\n'), false.
 
 % Initiates a play depending on its direction.
 check_play_type('C', RestOfPlay, Board, NewBoard) :-

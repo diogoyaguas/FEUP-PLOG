@@ -53,7 +53,7 @@ get_clean_int(I) :-
     nl.
         
 get_clean_int(I) :-
-    write('Invalid Input'), nl, get_clean_int(I).
+    write('<<< Invalid Line >>>\n\n'), write('Line (1 to 19): '), get_clean_int(I).
 
 capitalize_char(Char, CapitalizedChar) :-
     char_code(Char, Code),
