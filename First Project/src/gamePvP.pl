@@ -25,7 +25,7 @@ play_turn_PvP(Game, Player, PlayedGame) :-
 
 get_play_input(Player, Play) :-
     write('1 - Choose Column'), nl,
-    write('2 - Choose Line'), nl,
+    write('2 - Choose Line'), nl, 
     get_clean_char(Option),
     (
         (Option = '1', get_play_column(Column, Direction), Play = ['C', Column, Direction, Player]);

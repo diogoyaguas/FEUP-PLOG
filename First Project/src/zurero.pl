@@ -1,3 +1,4 @@
+:- include('bot.pl').
 :- include('display.pl').
 :- include('game.pl').
 :- include('gameOver.pl').
@@ -6,6 +7,7 @@
 :- include('menu.pl').
 :- include('tools.pl').
 :- include('validation.pl').
+:- include('value.pl').
 
 play :-
     displayMenu,
