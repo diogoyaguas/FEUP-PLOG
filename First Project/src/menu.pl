@@ -1,3 +1,4 @@
+% Displays the main menu
 displayMenu :-
     write('\e[2J'),
     write('\nZurero\n\n'),
@@ -5,7 +6,7 @@ displayMenu :-
     write('2 - Human vs CPU\n'), 
     write('3 - CPU vs CPU\n').
 
-
+% Executes the appropriate actions depending on the option chosen
 menu_option('1'):-  start_game(1, 1).
 menu_option('2'):-  bot_difficulty(2). 
 menu_option('3'):-  bot_difficulty(3).

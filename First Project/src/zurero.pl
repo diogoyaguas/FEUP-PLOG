@@ -9,6 +9,7 @@
 :- include('validation.pl').
 :- include('value.pl').
 
+% Starts the program
 play :-
     displayMenu,
     get_clean_char(Option),

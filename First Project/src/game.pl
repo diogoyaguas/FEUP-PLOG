@@ -7,7 +7,7 @@ create_game(Game, Difficulty) :-
 start_game(1, 1) :- 
     write('\n       <<< Started Human vs Human >>>\n'), nl,
     create_game(Game, 1),
-    startPvP(Game), !.
+    start_PvP(Game), !.
 
 start_game(2, Difficulty) :- 
     write('\n     <<< Started Human vs Computer >>>\n'), nl,
