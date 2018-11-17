@@ -23,7 +23,7 @@ play_turn_PvC(Game, Player, PlayedGame) :-
     nth0(0, Game, Board),
     display_game(Board, Player), % Displays the board
     nth0(1, Game, Difficulty),  
-    valid_moves(Board, ListOfMoves, Player), % Gets valid moves
+    valid_moves(Board, Player, ListOfMoves), % Gets valid moves
     (
         Player = 'b', choose_move(Board, Player, Move, Difficulty, ListOfMoves); % Gets bot input
         Player = 'w', get_play_input(Player, Move) % Gets player input

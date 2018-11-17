@@ -20,7 +20,7 @@ update_game_PvP(Game, Player) :-
 play_turn_PvP(Game, Player, PlayedGame) :-
     nth0(0, Game, Board),
     display_game(Board, Player), % Displays the board
-    valid_moves(Board, ListOfMoves, Player), % Gets valid moves
+    valid_moves(Board, Player, ListOfMoves), % Gets valid moves
     get_play_input(Player, Move), % Gets player input
     (
         move(Move, ListOfMoves, Board, NewBoard); % Verifies if player move is acceptable

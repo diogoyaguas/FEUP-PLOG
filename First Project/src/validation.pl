@@ -1,5 +1,5 @@
 % Gets a list of the valid moves at the moment
-valid_moves(Board, ListOfMoves, Player) :-
+valid_moves(Board, Player, ListOfMoves) :-
     get_moves(Board, [], 1, 'L', Player, HorizontalMoves), % Line valid moves
     transpose(Board, TransposedBoard), 
     get_moves(TransposedBoard, [], 1, 'C', Player, VerticalMoves), % Column valid moves
