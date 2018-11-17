@@ -1,9 +1,11 @@
+% Rate the game state
 value(Board, Player, Value) :-
     switch_players(Player, Opponent),
     count_rows(Board, Player, 0, [], NumberPlayer),
     count_rows(Board, Opponent, 0, [], NumberOpponent),
     Value is NumberPlayer - NumberOpponent.
 
+% Counts the number of consecutive pieces
 count_rows([[] | []], _, _, Rows, NumberPlayer) :-
     Rows = [], NumberPlayer = 0;
     max_member(Number, Rows),
@@ -26,6 +28,7 @@ count_rows([[Piece | RestOfLine] | RestOfBoard], Player, Index, Rows, NumberPlay
     append([RestOfLine], RestOfBoard, CutBoard),
     count_rows(CutBoard, Player, NextIndex, Rows, NumberPlayer).
 
+% Counts the number of consecutive horizontal pieces
 count_horizontal([Piece | RestOfLine], PlayerPiece, Counter, CounterHorizontal) :-
     (
         Piece = PlayerPiece, 
@@ -34,6 +37,7 @@ count_horizontal([Piece | RestOfLine], PlayerPiece, Counter, CounterHorizontal) 
     );
     CounterHorizontal is Counter.
 
+% Counts the number of consecutive vertical pieces
 count_vertical([Line | RestOfBoard], PlayerPiece, Index, Counter, CounterVertical) :-
     nth0(Index, Line, Piece),
     (
@@ -43,6 +47,7 @@ count_vertical([Line | RestOfBoard], PlayerPiece, Index, Counter, CounterVertica
     );
     CounterVertical is Counter.
 
+% Counts the number of consecutive diagonal pieces
 count_diagonal_right([Line | RestOfBoard], PlayerPiece, Index, Counter, CounterDiagonalRight) :-
     PreviousIndex is Index + 1,
     nth0(PreviousIndex, Line, Piece),

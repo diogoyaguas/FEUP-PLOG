@@ -1,35 +1,40 @@
 :- use_module(library(system)).
 
+% Starts a PvC game
 startPvC(Game) :-
     nth0(0, Game, Table),
     replace_piece(10, 10, 'b', Table, NewTable),
     update_game_table(Game, NewTable, StartedGame),
-    print_board(NewTable), update_game_PvC(StartedGame, 'w').
+    update_game_PvC(StartedGame, 'w').
 
+% Main PvC game loop
 update_game_PvC(Game, Player) :-
     play_turn_PvC(Game, Player, PlayedGame),
     nth0(0, PlayedGame, Board),
     (
-        game_over(Board, Winner, 0), victory(Winner); 
-        switch_players(Player, NextPlayer), update_game_PvC(PlayedGame, NextPlayer)
+        % Ends if there is a winner
+        game_over(Board, Winner, 0), victory(Winner), print_board(Board);
+        % Or switchess player
+        switch_players(Player, NextPlayer), !, update_game_PvC(PlayedGame, NextPlayer)
     ).
-    
-play_turn_PvC(Game, Player, PlayedGame) :-
-    show_player(Player),
-    nth0(0, Game, Board),
-    nth0(1, Game, Difficulty),
-    valid_moves(Board, ListOfMoves, Player),
-    (
-        Player = 'b', choose_move(Board, Player, Move, Difficulty, ListOfMoves);
-        Player = 'w', get_play_input(Player, Move)
-    ),
-    (
-        move(Move, ListOfMoves, Board, NewBoard);
-        !, print_board(Board), nl, play_turn_PvC(Game, Player, PlayedGame)
-    ),
-    update_game_table(Game, NewBoard, PlayedGame),
-    print_board(NewBoard).
 
+% Executes the necessary instructions to play a PvC turn
+play_turn_PvC(Game, Player, PlayedGame) :-
+    nth0(0, Game, Board),
+    display_game(Board, Player), % Displays the board
+    nth0(1, Game, Difficulty),  
+    valid_moves(Board, ListOfMoves, Player), % Gets valid moves
+    (
+        Player = 'b', choose_move(Board, Player, Move, Difficulty, ListOfMoves); % Gets bot input
+        Player = 'w', get_play_input(Player, Move) % Gets player input
+    ),
+    (
+        move(Move, ListOfMoves, Board, NewBoard); % Verifies if player move is acceptable
+        !, print_board(Board), nl, play_turn_PvC(Game, Player, PlayedGame) % If not repeats the process.
+    ),
+    update_game_table(Game, NewBoard, PlayedGame). % Updates the game board with the new one
+
+% Writes the bot input 
 write_move(Symbol, Move) :-
     write('1 - Choose Column'), nl,
     write('2 - Choose Line'), nl,
@@ -41,11 +46,11 @@ write_move(Symbol, Move) :-
         nth1(2, Move, Index),
         nth1(3, Move, Direction), 
         write(1), nl,
-        write('Column (A to S): '),
+        write('\nColumn (A to S): '),
         Code is (Index + 64),
         char_code(Column, Code),
         write(Column), nl,
-        write('Direction (U (Up) or D (Down)): '),
+        write('\nDirection (U (Up) or D (Down)): '),
         write(Direction), nl, nl
     );
     (
@@ -53,8 +58,8 @@ write_move(Symbol, Move) :-
         nth1(2, Move, Line),
         nth1(3, Move, Direction),
         write(2), nl,
-        write('Line (1 to 19): '),
+        write('\nLine (1 to 19): '),
         write(Line), nl,
-        write('L (Left) or R (right): '),
+        write('\nL (Left) or R (right): '),
         write(Direction), nl, nl
     ).

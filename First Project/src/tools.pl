@@ -82,4 +82,3 @@ column_dictionary(Column, Number) :-
     Code >= 65,
     Code =< 83,
     Number is (Code - 64).
-      
