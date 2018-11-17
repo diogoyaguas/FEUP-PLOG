@@ -47,7 +47,7 @@ get_clean_char(X) :-
     nl.
 
 get_clean_int(I) :-
-    read(I),
+    catch(read(I), Error, true),
     get_char(_),
     integer(I),
     nl.

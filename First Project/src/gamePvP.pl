@@ -36,7 +36,7 @@ get_play_input(Player, Play) :-
 get_play_line(Line, Direction) :-
     write('Line (1 to 19): '),
     get_clean_int(Line), 
-    Line >= 1, Line < 20, !,
+    Line > 0, Line < 20, !,
     get_play_line_direction(Direction).
 
 get_play_line(Line, Direction) :-
