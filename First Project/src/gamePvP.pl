@@ -24,7 +24,7 @@ play_turn_PvP(Game, Player, PlayedGame) :-
     get_play_input(Player, Move), % Gets player input
     (
         move(Move, ListOfMoves, Board, NewBoard); % Verifies if player move is acceptable
-        !, print_board(Board), nl, play_turn_PvP(Game, Player, PlayedGame) % If not repeats the process.
+        !, play_turn_PvP(Game, Player, PlayedGame) % If not repeats the process.
     ),
     update_game_table(Game, NewBoard, PlayedGame). % Updates the game board with the new one
 
