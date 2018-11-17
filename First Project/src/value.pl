@@ -5,6 +5,7 @@ value(Board, Player, Value) :-
     Value is NumberPlayer - NumberOpponent.
 
 count_rows([[] | []], _, _, Rows, NumberPlayer) :-
+    Rows = [], NumberPlayer = 0;
     max_member(Number, Rows),
     NumberPlayer is Number.
 

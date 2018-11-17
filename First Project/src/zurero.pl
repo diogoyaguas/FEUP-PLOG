@@ -1,6 +1,7 @@
 :- include('bot.pl').
 :- include('display.pl').
 :- include('game.pl').
+:- include('gameCvC.pl').
 :- include('gameOver.pl').
 :- include('gamePvC.pl').
 :- include('gamePvP.pl').

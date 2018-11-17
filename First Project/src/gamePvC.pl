@@ -1,4 +1,3 @@
-:- use_module(library(random)).
 :- use_module(library(system)).
 
 startPvC(Game) :-
@@ -26,7 +25,7 @@ play_turn_PvC(Game, Player, PlayedGame) :-
     ),
     (
         move(Move, ListOfMoves, Board, NewBoard);
-        !, print_board(Board), nl, play_turn_PvP(Game, Player, PlayedGame)
+        !, print_board(Board), nl, play_turn_PvC(Game, Player, PlayedGame)
     ),
     update_game_table(Game, NewBoard, PlayedGame),
     print_board(NewBoard).
