@@ -66,11 +66,12 @@ check_line_play_direction([Line | RestOfBoard], Play, 1, [Head | Remainder]) :-
     Play = [_ | DirectionPlayer], DirectionPlayer = [Direction | PlayerInList], PlayerInList = [Player | _],
     (
         (Direction = 'R', 
-        play_line(Line, Player, Head), Remainder = RestOfBoard); % If the direction is right, calls play_line normally
+        (play_line_first_piece(Line, Player, Head); play_line(Line, Player, Head)),
+        Remainder = RestOfBoard); % If the direction is right, calls play_line normally
 
         (Direction = 'L',  % If the direction is left, reverses the line
         reverse(Line, ReversedLine), 
-        play_line(ReversedLine, Player, NewReversedLine),
+        (play_line_first_piece(ReversedLine, Player, NewReversedLine); play_line(ReversedLine, Player, NewReversedLine)),
         reverse(NewReversedLine, Head), Remainder = RestOfBoard)
     ), !.
 
@@ -79,6 +80,7 @@ check_line_play_direction([Line | RestOfBoard], Play, LineNumber, [Head | Remain
     Head = Line,
     check_line_play_direction(RestOfBoard, Play, NextLineNumber, Remainder).
 
+% Executes a column play (if that's the case) in the first piece
 play_column_first_piece([Line | [NextLine | RestOfBoard]], Column, Player, [Head | Remainder]) :-
     nth1(Column, Line, FirstPiece),
     FirstPiece \= empty,
@@ -91,9 +93,8 @@ play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
     nth1(1, RestOfBoard, NextLine),
     get_piece_in_column(Column, NextLine, Piece),
     Piece \= empty, !,
-    (
-        play_column_decide([Line | RestOfBoard], Column, Player, NextLine, Piece, [Head | Remainder])
-    ).
+    play_column_decide([Line | RestOfBoard], Column, Player, NextLine, Piece, [Head | Remainder]).
+
          
 play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
     Head = Line, play_column(RestOfBoard, Column, Player, Remainder).
@@ -119,24 +120,32 @@ play_column_decide([Line | RestOfBoard], Column, Player, NextLine, Piece, [Head 
 
 play_column_decide([Line | RestOfBoard], Column, Player, _, _, [Head | Remainder]) :-
     replace_element(Column, Line, Player, Head), Remainder = RestOfBoard.
+
+play_line_first_piece([Head | RestOfLine], Player, [NewHead | Remainder]) :-
+    Head \= empty,
+    play_line_decide([empty | [Head | RestOfLine]], Player, Head, [_ | [NewHead | Remainder]]).
         
+% Executes a line play
 play_line([Head | RestOfLine], Player, [NewHead | Remainder]) :- 
     nth1(1, RestOfLine, NextPiece),
-    (
-        NextPiece \= empty, Head = empty,
-        (
-            (length(RestOfLine, L), L >= 2,
-            (
-                nth1(2, RestOfLine, SecondPiece),
-                (
-                    (SecondPiece \= empty, NewHead = Player, Remainder = RestOfLine) ; true,
-
-                    replace_element(2, RestOfLine, NextPiece, NewRestOfLine),
-                    replace_element(1, NewRestOfLine, Player, Remainder),
-                    NewHead = Head
-                )
-            ));
-            NewHead = Player, Remainder = RestOfLine
-        )
-    );
+    NextPiece \= empty, !,
+    play_line_decide([Head | RestOfLine], Player, NextPiece, [NewHead | Remainder]).
+ 
+play_line([Head | RestOfLine], Player, [NewHead | Remainder]) :-
     NewHead = Head, play_line(RestOfLine, Player, Remainder).
+
+play_line_decide([Head | RestOfLine], Player, NextPiece, [NewHead | Remainder]) :-
+    length(RestOfLine, L), L >= 2, !,
+    (
+        nth1(2, RestOfLine, SecondPiece),
+        (
+            (SecondPiece \= empty, NewHead = Player, Remainder = RestOfLine) ; true,
+
+            replace_element(2, RestOfLine, NextPiece, NewRestOfLine),
+            replace_element(1, NewRestOfLine, Player, Remainder),
+            NewHead = Head
+        )
+    ).
+
+play_line_decide([_ | RestOfLine], Player, _, [NewHead | Remainder]) :-
+    NewHead = Player, Remainder = RestOfLine.
