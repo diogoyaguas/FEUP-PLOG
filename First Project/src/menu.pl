@@ -1,11 +1,20 @@
 % Displays the main menu
 displayMenu :-
     write('\e[2J'),
-    write('\nZurero\n\n'),
+    display_banner,
     write('1 - Human vs Human\n'), 
     write('2 - Human vs CPU\n'), 
     write('3 - CPU vs CPU\n'),
     write('4 - Exit\n').
+
+% Displays the game banner
+display_banner :-
+write('     ________   __    __   ______       _______  ______        ______'), nl,   
+write('    |       /  |  |  |  | |   _  \\     |   ____||   _  \\      /  __  \\'), nl, 
+write('    `---/  /   |  |  |  | |  |_)  |    |  |__   |  |_)  |    |  |  |  |'), nl, 
+write('       /  /    |  |  |  | |      /     |   __|  |      /     |  |  |  |'), nl, 
+write('      /  /----.|  `--`  | |  |\\  \\----.|  |____ |  |\\  \\----.|  `--`  |'), nl, 
+write('     /________| \\______/  | _| `._____||_______|| _| `._____| \\______/'), nl, nl.                                            
 
 % Executes the appropriate actions depending on the option chosen
 menu_option('1'):-  start_game(1, 1), sleep(7), !, play.
