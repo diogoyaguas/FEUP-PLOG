@@ -94,6 +94,13 @@ show_player(Player) :-
     Player = 'b', nl, write('Black Turn'), nl, nl;
     Player = 'w', nl, write('White Turn'), nl, nl.
 
+% Displays which player has won
+victory('w') :-
+    write('<<< White victory >>>\n'), !.
+
+victory('b') :-
+    write('<<< Black victory >>>\n').
+
 % Utility function to print a list of moves, only used for test purposes.
 print_listOfMoves([], _).
 

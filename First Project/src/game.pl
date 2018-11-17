@@ -7,7 +7,7 @@ create_game(Game, Difficulty) :-
 start_game(1, 1) :- 
     write('\n       <<< Started Human vs Human >>>\n'), nl,
     create_game(Game, 1),
-    startPvP(Game), !.
+    start_PvP(Game), !.
 
 start_game(2, Difficulty) :- 
     write('\n     <<< Started Human vs Computer >>>\n'), nl,
@@ -80,7 +80,7 @@ check_line_play_direction([Line | RestOfBoard], Play, LineNumber, [Head | Remain
     Head = Line,
     check_line_play_direction(RestOfBoard, Play, NextLineNumber, Remainder).
 
-% Executes a column play (if that's the case) in the first piece
+% Executes a column play (if that's the case) on the first piece
 play_column_first_piece([Line | [NextLine | RestOfBoard]], Column, Player, [Head | Remainder]) :-
     nth1(Column, Line, FirstPiece),
     FirstPiece \= empty,
@@ -99,17 +99,17 @@ play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
 play_column([Line | RestOfBoard], Column, Player, [Head | Remainder]) :-
     Head = Line, play_column(RestOfBoard, Column, Player, Remainder).
 
-% Analizes the next two pieces (if they exist) in the column and decides what to do.
+% Analyses the next two pieces (if they exist) in the column and decides what to do.
 play_column_decide([Line | RestOfBoard], Column, Player, NextLine, Piece, [Head | Remainder]) :-
     length(RestOfBoard, L), L >= 2, !, % If there are at least two more pieces/lines after the current one
     (
         nth1(2, RestOfBoard, SecondLine), 
         get_piece_in_column(Column, SecondLine, NextPiece),
         (
-            % If there is another piece after the one we found, just add the player's piece to the current column
+            % If there is another piece after the one we found, just add the player's piece to the current slot in the column
             (NextPiece \= empty, replace_element(Column, Line, Player, Head), Remainder = RestOfBoard); true,
 
-            % Else replace move the piece we found one spot and place the player's piece in its place
+            % Else move the piece we found one spot and place the player's piece in its place
             replace_element(Column, SecondLine, Piece, NewBottomLine),
             replace_element(2, RestOfBoard, NewBottomLine, NewRestOfBoard),
             replace_element(Column, NextLine, Player, NewLine),
@@ -121,6 +121,7 @@ play_column_decide([Line | RestOfBoard], Column, Player, NextLine, Piece, [Head 
 play_column_decide([Line | RestOfBoard], Column, Player, _, _, [Head | Remainder]) :-
     replace_element(Column, Line, Player, Head), Remainder = RestOfBoard.
 
+% Executes a line play (if that's the case) on the first piece
 play_line_first_piece([Head | RestOfLine], Player, [NewHead | Remainder]) :-
     Head \= empty,
     play_line_decide([empty | [Head | RestOfLine]], Player, Head, [_ | [NewHead | Remainder]]).
@@ -134,13 +135,16 @@ play_line([Head | RestOfLine], Player, [NewHead | Remainder]) :-
 play_line([Head | RestOfLine], Player, [NewHead | Remainder]) :-
     NewHead = Head, play_line(RestOfLine, Player, Remainder).
 
+% Analyses the next two pieces (if they exist) in the line and decides what to do
 play_line_decide([Head | RestOfLine], Player, NextPiece, [NewHead | Remainder]) :-
     length(RestOfLine, L), L >= 2, !,
     (
         nth1(2, RestOfLine, SecondPiece),
         (
+            % If there is another piece after the one we found, just add the player's piece to the current slot in the line
             (SecondPiece \= empty, NewHead = Player, Remainder = RestOfLine) ; true,
 
+            % Else move the piece we found one spot and place the player's piece in its place
             replace_element(2, RestOfLine, NextPiece, NewRestOfLine),
             replace_element(1, NewRestOfLine, Player, Remainder),
             NewHead = Head
