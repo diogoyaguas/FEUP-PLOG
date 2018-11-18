@@ -106,7 +106,8 @@ play_column_decide([Line | RestOfBoard], Column, Player, NextLine, Piece, [Head 
         nth1(2, RestOfBoard, SecondLine), 
         get_piece_in_column(Column, SecondLine, NextPiece),
         (
-            % If there is another piece after the one we found, just add the player's piece to the current slot in the column
+            % If there is another piece after the one we found, just add the player's piece to the current slot in the 
+            % column
             (NextPiece \= empty, replace_element(Column, Line, Player, Head), Remainder = RestOfBoard); true,
 
             % Else move the piece we found one spot and place the player's piece in its place

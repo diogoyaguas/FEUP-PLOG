@@ -10,8 +10,10 @@ get_moves([ ], Moves, _, _, _, Moves).
 
 get_moves([Line | RestOfBoard], Moves, Index, Symbol, Player, ListOfMoves) :-
         has_pieces(Line), % Make sure the line has pieces
-        check_last_element_and_add_play(Line, Moves, Index, Symbol, Player, NewMoves), % Used for the last element special case
-        check_first_element_and_add_play(Line, NewMoves, Index, Symbol, Player, NewMoves2), % Used for the first element special case
+        % Used for the last element special case
+        check_last_element_and_add_play(Line, Moves, Index, Symbol, Player, NewMoves),
+        % Used for the first element special case 
+        check_first_element_and_add_play(Line, NewMoves, Index, Symbol, Player, NewMoves2), 
         NextIndex is (Index + 1),
         get_moves(RestOfBoard, NewMoves2, NextIndex, Symbol, Player, ListOfMoves).
     
