@@ -21,7 +21,16 @@ table([
 [empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty],
 [empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty],
 [empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty],
-[empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty]]).  
+[empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty]]).
+
+% Displays the game banner
+display_banner :-
+    write('     ________   __    __   ______       _______  ______        ______'), nl,   
+    write('    |       /  |  |  |  | |   _  \\     |   ____||   _  \\      /  __  \\'), nl, 
+    write('    `---/  /   |  |  |  | |  |_)  |    |  |__   |  |_)  |    |  |  |  |'), nl, 
+    write('       /  /    |  |  |  | |      /     |   __|  |      /     |  |  |  |'), nl, 
+    write('      /  /----.|  `--`  | |  |\\  \\----.|  |____ |  |\\  \\----.|  `--`  |'), nl, 
+    write('     /________| \\______/  | _| `._____||_______|| _| `._____| \\______/'), nl, nl.   
 
 % Prints the table's header and footer: a line containing the name of each column
 print_table_header :-
