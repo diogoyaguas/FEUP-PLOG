@@ -1,3 +1,12 @@
+get_option(Opt, LowerBound, UpperBound) :-
+    get_clean_int(Opt),
+    Opt >= LowerBound,
+    Opt =< UpperBound.
+
+get_option(Opt, LowerBound, UpperBound) :-
+    write('Invalid Option'), nl,
+    get_option(Opt, LowerBound, UpperBound).
+
 % Reads a char from the input stream, discarding everything after it
 get_clean_char(X) :-
     get_char(X),
