@@ -1,3 +1,6 @@
+:- use_module(library(clpfd)).
+:- use_module(library(random)).
+
 :- include('tools.pl').
 
 ceco :-
@@ -11,7 +14,45 @@ main_menu :-
     (
         (Option = 1, manual_input(ServerList, TaskList));
         (Option = 2, generate_data(ServerList, TaskList)) 
-    ).
+    ),
+    print_list(ServerList), nl,
+    print_list(TaskList).
+
+generate_data(ServerList, TaskList) :-
+    write('Server Amount: '),
+    get_clean_int(NoServers), nl,
+    generate_servers(NoServers, ServerList),
+    write('Number of Tasks: '),
+    get_clean_int(NoTasks), nl,
+    generate_tasks(NoTasks, TaskList).
+
+generate_tasks(0, []).
+generate_tasks(NoTasks, [Task | RestOfTaskList]) :-
+    random(1, 4, Plan),
+    random(1, 8, Cores),
+    random(1, 9, PartialFrequencyI),
+    PartialFrequencyF is (PartialFrequencyI / 10),
+    Frequency is (1.0 + PartialFrequencyF),
+    random(1, 16, RAM),
+    random(120, 1000, Storage),
+    random(5, 360, ETA),
+    Task = [Plan, Cores, Frequency, RAM, Storage, ETA],
+    NoTasksAux is (NoTasks - 1),
+    generate_tasks(NoTasksAux, RestOfTaskList).
+
+
+generate_servers(0, []).
+generate_servers(NoServers, [Server | RestOfServerList]) :-
+    random(1, 8, Cores),
+    random(1, 9, PartialFrequencyI),
+    PartialFrequencyF is (PartialFrequencyI / 10),
+    Frequency is (1.0 + PartialFrequencyF),
+    random(1, 16, RAM),
+    random(120, 1000, Storage),
+    NoServersAux is (NoServers - 1),
+    Server = [Cores, Frequency, RAM, Storage],
+    generate_servers(NoServersAux, RestOfServerList).
+
 
 manual_input(ServerList, TaskList) :-
     write('Server Amount: '),
