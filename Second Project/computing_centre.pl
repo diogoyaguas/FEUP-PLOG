@@ -67,7 +67,7 @@ schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars) :-
     write('Passed cumulatives'), nl,
     maximum(End, EndTimes),
     domain([End], 1, 24),
-    append(MachineIds, StartTimes, Vars),
+    append([MachineIds, StartTimes], Vars),
     labeling([minimize(End)], Vars). %Minimizar simetrico de plano de tarefas (?)
 
 create_machines([], _, [], [], [], []).
