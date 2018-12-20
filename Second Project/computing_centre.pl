@@ -27,10 +27,11 @@ main_menu :-
 schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars) :-
     length(StartTimes, TaskNo),
     length(EndTimes, TaskNo),
-    domain(StartTimes, 0, 24), %Check what domain is best (hours vs minutes vs ?)
-    domain(EndTimes, 0, 24),
+    domain(StartTimes, 0, 86400), %Check what domain is best (hours vs minutes vs ?)
+    domain(EndTimes, 0, 86400),
     %Tasks
-    length(MachineIds, TaskNo),
+    BiggerLimit is (TaskNo * 4),
+    length(MachineIds, BiggerLimit),
     domain(MachineIds, 1, ServerNo),
     length(Tasks1, TaskNo),
     length(Tasks2, TaskNo),
@@ -80,14 +81,17 @@ create_machines([Server | Rsl], MachineId, [M1 | Rm1], [M2 | Rm2], [M3 | Rm3], [
     create_machines(Rsl, NextMachineId, Rm1, Rm2, Rm3, Rm4).
 
 create_prolog_tasks([], [], [], [], [], [], [], []).
-create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [MachineId| Rmid], 
+create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [M1, M2, M3, M4 | Rmid], 
     [Task1 | Rt1], [Task2 | Rt2], [Task3 | Rt3], [Task4 | Rt4]) :-
     UserTask = [_, NoCores, Frequency, RAM, Storage, Duration],
     %Check For Duration Discrepancies (h vs mins)
-    Task1 = task(StartTime, Duration, EndTime, NoCores, MachineId),
-    Task2 = task(StartTime, Duration, EndTime, Frequency, MachineId),
-    Task3 = task(StartTime, Duration, EndTime, RAM, MachineId),
-    Task4 = task(StartTime, Duration, EndTime, Storage, MachineId), %This vs having [Mid1, Mid2, Mid3, Mid4] and restricting them to be equal to each other
+    Task1 = task(StartTime, Duration, EndTime, NoCores, M1),
+    Task2 = task(StartTime, Duration, EndTime, Frequency, M2),
+    Task3 = task(StartTime, Duration, EndTime, RAM, M3),
+    Task4 = task(StartTime, Duration, EndTime, Storage, M4), %This vs having [Mid1, Mid2, Mid3, Mid4] and restricting them to be equal to each other
+    M1 #= M2, M1 #= M3, M1 #= M4,
+    M2 #= M3, M2 #= M4,
+    M3 #= M4,
     create_prolog_tasks(Rtl, Rs, Re, Rmid, Rt1, Rt2, Rt3, Rt4).
     
 generate_data(ServerList, NoServers, TaskList, TaskNo) :-
@@ -96,38 +100,27 @@ generate_data(ServerList, NoServers, TaskList, TaskNo) :-
     generate_servers(NoServers, ServerList),
     write('Number of Tasks: '),
     get_clean_int(TaskNo), nl,
-    generate_tasks(TaskNo, TaskList).
+    AvgTime is (86400 div TaskNo),
+    generate_tasks(TaskNo, AvgTime, TaskList).
 
-generate_tasks(0, []).
-generate_tasks(NoTasks, [Task | RestOfTaskList]) :-
+generate_tasks(0, _, []).
+generate_tasks(NoTasks, AvgTime, [Task | RestOfTaskList]) :-
     random(1, 4, Plan),
-    random(1, 8, Cores),
-    %Replace with real values
-    /*random(1, 9, PartialFrequencyI),
-    PartialFrequencyF is (PartialFrequencyI / 10),
-    Frequency is (1.0 + PartialFrequencyF), */
+    random(1, 4, Cores),
     random(1, 2, Frequency),
-    random(1, 16, RAM),
-    random(120, 1000, Storage),
-    /*
-    random(5, 360, ETAMins),
-    ETAHours is (ETAMins / 60),*/
-    random(1, 12, ETAHours),
+    random(1, 8, RAM),
+    random(1, 122, Storage),
+    random(1, AvgTime, ETAHours),
     Task = [Plan, Cores, Frequency, RAM, Storage, ETAHours],
     NoTasksAux is (NoTasks - 1),
-    generate_tasks(NoTasksAux, RestOfTaskList).
+    generate_tasks(NoTasksAux, AvgTime, RestOfTaskList).
 
 generate_servers(0, []).
 generate_servers(NoServers, [Server | RestOfServerList]) :-
-    random(1, 8, Cores),
-    %Replace with real values
-    /*
-    random(1, 9, PartialFrequencyI),
-    PartialFrequencyF is (PartialFrequencyI / 10),
-    Frequency is (1.0 + PartialFrequencyF), */
-    random(1, 2, Frequency),
-    random(1, 16, RAM),
-    random(120, 1000, Storage),
+    random(4, 8, Cores),
+    random(2, 3, Frequency),
+    random(8, 16, RAM),
+    random(122, 1000, Storage),
     NoServersAux is (NoServers - 1),
     Server = [Cores, Frequency, RAM, Storage],
     generate_servers(NoServersAux, RestOfServerList).
