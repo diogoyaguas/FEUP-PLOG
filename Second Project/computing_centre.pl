@@ -20,24 +20,29 @@ main_menu :-
     print_list(ServerList), nl,
     write('----- User Tasks ----- '), nl,
     print_list(TaskList), nl,
-    schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars),
-    write('----- Vars ----- '), nl,
-    print_list(Vars).
+    schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds),
+    write('----- Machine/Tasks ----- '), nl,
+    print_list(MachineIds), nl,
+    write('----- Start Times ----- '), nl,
+    print_list(StartTimes), nl,
+    write('----- End Times ----- '), nl,
+    print_list(EndTimes), nl.
 
-schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars) :-
+
+schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds) :-
     length(StartTimes, TaskNo),
     length(EndTimes, TaskNo),
     domain(StartTimes, 0, 86400), %Check what domain is best (hours vs minutes vs ?)
     domain(EndTimes, 0, 86400),
     %Tasks
-    BiggerLimit is (TaskNo * 4),
-    length(MachineIds, BiggerLimit),
+    length(MachineIds, TaskNo),
     domain(MachineIds, 1, ServerNo),
     length(Tasks1, TaskNo),
     length(Tasks2, TaskNo),
     length(Tasks3, TaskNo),
     length(Tasks4, TaskNo),
     create_prolog_tasks(TaskList, StartTimes, EndTimes, MachineIds, Tasks1, Tasks2, Tasks3, Tasks4),
+    /*
     write('----- Tasks 1 ----- '), nl,
     print_list(Tasks1), nl,
     write('----- Tasks 2 ----- '), nl,
@@ -45,13 +50,14 @@ schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars) :-
     write('----- Tasks 3 ----- '), nl,
     print_list(Tasks3), nl,
     write('----- Tasks 4 ----- '), nl,
-    print_list(Tasks4), nl,
+    print_list(Tasks4), nl, */
     %Machines
     length(Machines1, ServerNo),
     length(Machines2, ServerNo),
     length(Machines3, ServerNo),
     length(Machines4, ServerNo),
     create_machines(ServerList, 1, Machines1, Machines2, Machines3, Machines4),
+    /*
     write('----- Machines 1 ----- '), nl,
     print_list(Machines1), nl,
     write('----- Machines 2 ----- '), nl,
@@ -59,14 +65,14 @@ schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars) :-
     write('----- Machines 3 ----- '), nl,
     print_list(Machines3), nl,
     write('----- Machines 4 ----- '), nl,
-    print_list(Machines4), nl,
+    print_list(Machines4), nl, */
     cumulatives(Tasks1, Machines1, [bound(upper)]),
     cumulatives(Tasks2, Machines2, [bound(upper)]),
     cumulatives(Tasks3, Machines3, [bound(upper)]),
     cumulatives(Tasks4, Machines4, [bound(upper)]),
     write('Passed cumulatives'), nl,
     maximum(End, EndTimes),
-    domain([End], 1, 24),
+    domain([End], 0, 86400),
     append([MachineIds, StartTimes], Vars),
     labeling([minimize(End)], Vars). %Minimizar simetrico de plano de tarefas (?)
 
@@ -81,17 +87,14 @@ create_machines([Server | Rsl], MachineId, [M1 | Rm1], [M2 | Rm2], [M3 | Rm3], [
     create_machines(Rsl, NextMachineId, Rm1, Rm2, Rm3, Rm4).
 
 create_prolog_tasks([], [], [], [], [], [], [], []).
-create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [M1, M2, M3, M4 | Rmid], 
+create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [MachineId| Rmid], 
     [Task1 | Rt1], [Task2 | Rt2], [Task3 | Rt3], [Task4 | Rt4]) :-
     UserTask = [_, NoCores, Frequency, RAM, Storage, Duration],
     %Check For Duration Discrepancies (h vs mins)
-    Task1 = task(StartTime, Duration, EndTime, NoCores, M1),
-    Task2 = task(StartTime, Duration, EndTime, Frequency, M2),
-    Task3 = task(StartTime, Duration, EndTime, RAM, M3),
-    Task4 = task(StartTime, Duration, EndTime, Storage, M4), %This vs having [Mid1, Mid2, Mid3, Mid4] and restricting them to be equal to each other
-    M1 #= M2, M1 #= M3, M1 #= M4,
-    M2 #= M3, M2 #= M4,
-    M3 #= M4,
+    Task1 = task(StartTime, Duration, EndTime, NoCores, MachineId),
+    Task2 = task(StartTime, Duration, EndTime, Frequency, MachineId),
+    Task3 = task(StartTime, Duration, EndTime, RAM, MachineId),
+    Task4 = task(StartTime, Duration, EndTime, Storage, MachineId), %This vs having [Mid1, Mid2, Mid3, Mid4] and restricting them to be equal to each other
     create_prolog_tasks(Rtl, Rs, Re, Rmid, Rt1, Rt2, Rt3, Rt4).
     
 generate_data(ServerList, NoServers, TaskList, TaskNo) :-
