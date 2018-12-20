@@ -13,124 +13,104 @@ main_menu :-
     write('2 - Generate Data'), nl,
     get_option(Option, 1, 2),
     (
-        (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
-        (Option = 2, generate_data(ServerList, ServerNo, TaskList, TaskNo)) 
+       % (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
+        (Option = 2, generate_data(ServerCores, ServerFreqs, ServerRAM, ServerSt, ServerNo, TaskList, TaskNo)) 
     ),
-    write('----- Servers ----- '), nl,
-    print_list(ServerList), nl,
+    write('----- Server Cores ----- '), nl,
+    print_list(ServerCores), nl, 
+    write('----- Server Frequencies ----- '), nl,
+    print_list(ServerFreqs), nl,
+    write('----- Server RAM ----- '), nl,
+    print_list(ServerRAM), nl,
+    write('----- Server Storage ----- '), nl,
+    print_list(ServerSt), nl,
     write('----- User Tasks ----- '), nl,
     print_list(TaskList), nl,
-    schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars),
-    write('----- Vars ----- '), nl,
-    print_list(Vars).
+    schedule(ServerCores, ServerFreqs, ServerRAM, ServerSt, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds),
+    write('----- Machine/Tasks ----- '), nl,
+    print_list(MachineIds), nl,
+    write('----- Start Times ----- '), nl,
+    print_list(StartTimes), nl,
+    write('----- End Times ----- '), nl,
+    print_list(EndTimes), nl.
 
-schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, Vars) :-
+schedule(ServerCores, ServerFreqs, ServerRAM, ServerSt, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds) :-
     length(StartTimes, TaskNo),
     length(EndTimes, TaskNo),
-    domain(StartTimes, 0, 24), %Check what domain is best (hours vs minutes vs ?)
-    domain(EndTimes, 0, 24),
+    domain(StartTimes, 0, 86400), %Check what domain is best (hours vs minutes vs ?)
+    domain(EndTimes, 0, 86400),
+    %Machines
+    length(Machines, ServerNo),
+    create_machines(1, Machines),
+    /*
+    write('----- Machines ----- '), nl,
+    print_list(Machines), nl, */
     %Tasks
     length(MachineIds, TaskNo),
     domain(MachineIds, 1, ServerNo),
-    length(Tasks1, TaskNo),
-    length(Tasks2, TaskNo),
-    length(Tasks3, TaskNo),
-    length(Tasks4, TaskNo),
-    create_prolog_tasks(TaskList, StartTimes, EndTimes, MachineIds, Tasks1, Tasks2, Tasks3, Tasks4),
-    write('----- Tasks 1 ----- '), nl,
-    print_list(Tasks1), nl,
-    write('----- Tasks 2 ----- '), nl,
-    print_list(Tasks2), nl,
-    write('----- Tasks 3 ----- '), nl,
-    print_list(Tasks3), nl,
-    write('----- Tasks 4 ----- '), nl,
-    print_list(Tasks4), nl,
-    %Machines
-    length(Machines1, ServerNo),
-    length(Machines2, ServerNo),
-    length(Machines3, ServerNo),
-    length(Machines4, ServerNo),
-    create_machines(ServerList, 1, Machines1, Machines2, Machines3, Machines4),
-    write('----- Machines 1 ----- '), nl,
-    print_list(Machines1), nl,
-    write('----- Machines 2 ----- '), nl,
-    print_list(Machines2), nl,
-    write('----- Machines 3 ----- '), nl,
-    print_list(Machines3), nl,
-    write('----- Machines 4 ----- '), nl,
-    print_list(Machines4), nl,
-    cumulatives(Tasks1, Machines1, [bound(upper)]),
-    cumulatives(Tasks2, Machines2, [bound(upper)]),
-    cumulatives(Tasks3, Machines3, [bound(upper)]),
-    cumulatives(Tasks4, Machines4, [bound(upper)]),
+    length(Tasks, TaskNo),
+    create_prolog_tasks(TaskList, StartTimes, EndTimes, MachineIds, ServerCores, ServerFreqs, ServerRAM, ServerSt, Tasks),
+    /*
+    write('----- Tasks ----- '), nl,
+    print_list(Tasks), nl, */
+    cumulatives(Tasks, Machines, [bound(upper)]),
     write('Passed cumulatives'), nl,
     maximum(End, EndTimes),
-    domain([End], 1, 24),
-    append(MachineIds, StartTimes, Vars),
+    domain([End], 0, 86400),
+    append([MachineIds, StartTimes], Vars),
     labeling([minimize(End)], Vars). %Minimizar simetrico de plano de tarefas (?)
 
-create_machines([], _, [], [], [], []).
-create_machines([Server | Rsl], MachineId, [M1 | Rm1], [M2 | Rm2], [M3 | Rm3], [M4 | Rm4]) :-
-    Server = [NoCores, Frequency, RAM, Storage],
-    M1 = machine(MachineId, NoCores),
-    M2 = machine(MachineId, Frequency),
-    M3 = machine(MachineId, RAM),
-    M4 = machine(MachineId, Storage),
+create_machines(_, []).
+create_machines(MachineId, [Machine | Rm]) :-
+    Machine = machine(MachineId, 1),
     NextMachineId is (MachineId + 1),
-    create_machines(Rsl, NextMachineId, Rm1, Rm2, Rm3, Rm4).
+    create_machines(NextMachineId, Rm).
 
-create_prolog_tasks([], [], [], [], [], [], [], []).
-create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [MachineId| Rmid], 
-    [Task1 | Rt1], [Task2 | Rt2], [Task3 | Rt3], [Task4 | Rt4]) :-
+create_prolog_tasks([], [], [], [], _, _, _, _, []).
+create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [MachineId| Rmid], ServerCores, ServerFreqs, 
+    ServerRAM, ServerSt, [Task | Rt]) :-
     UserTask = [_, NoCores, Frequency, RAM, Storage, Duration],
     %Check For Duration Discrepancies (h vs mins)
-    Task1 = task(StartTime, Duration, EndTime, NoCores, MachineId),
-    Task2 = task(StartTime, Duration, EndTime, Frequency, MachineId),
-    Task3 = task(StartTime, Duration, EndTime, RAM, MachineId),
-    Task4 = task(StartTime, Duration, EndTime, Storage, MachineId), %This vs having [Mid1, Mid2, Mid3, Mid4] and restricting them to be equal to each other
-    create_prolog_tasks(Rtl, Rs, Re, Rmid, Rt1, Rt2, Rt3, Rt4).
+    Task = task(StartTime, Duration, EndTime, 1, MachineId),
+    element(MachineId, ServerCores, NoCoresS),
+    element(MachineId, ServerFreqs, FrequencyS),
+    element(MachineId, ServerRAM, RAMS),
+    element(MachineId, ServerSt, StorageS),
+    NoCoresS #>= NoCores,
+    FrequencyS #>= Frequency,
+    RAMS #>= RAM,
+    StorageS #>= Storage,
+    create_prolog_tasks(Rtl, Rs, Re, Rmid, ServerCores, ServerFreqs, ServerRAM, ServerSt, Rt).
     
-generate_data(ServerList, NoServers, TaskList, TaskNo) :-
+generate_data(ServerCores, ServerFreq, ServerRAM, ServerSt, NoServers, TaskList, TaskNo) :-
     write('Server Amount: '),
     get_clean_int(NoServers), nl,
-    generate_servers(NoServers, ServerList),
+    generate_servers(NoServers, ServerCores, ServerFreq, ServerRAM, ServerSt),
     write('Number of Tasks: '),
     get_clean_int(TaskNo), nl,
-    generate_tasks(TaskNo, TaskList).
+    AvgTime is (86400 div TaskNo),
+    generate_tasks(TaskNo, AvgTime, TaskList).
 
-generate_tasks(0, []).
-generate_tasks(NoTasks, [Task | RestOfTaskList]) :-
+generate_tasks(0, _, []).
+generate_tasks(NoTasks, AvgTime, [Task | RestOfTaskList]) :-
     random(1, 4, Plan),
-    random(1, 8, Cores),
-    %Replace with real values
-    /*random(1, 9, PartialFrequencyI),
-    PartialFrequencyF is (PartialFrequencyI / 10),
-    Frequency is (1.0 + PartialFrequencyF), */
+    random(1, 4, Cores),
     random(1, 2, Frequency),
-    random(1, 16, RAM),
-    random(120, 1000, Storage),
-    /*
-    random(5, 360, ETAMins),
-    ETAHours is (ETAMins / 60),*/
-    random(1, 12, ETAHours),
+    random(1, 8, RAM),
+    random(1, 122, Storage),
+    random(1, AvgTime, ETAHours),
     Task = [Plan, Cores, Frequency, RAM, Storage, ETAHours],
     NoTasksAux is (NoTasks - 1),
-    generate_tasks(NoTasksAux, RestOfTaskList).
+    generate_tasks(NoTasksAux, AvgTime, RestOfTaskList).
 
-generate_servers(0, []).
-generate_servers(NoServers, [Server | RestOfServerList]) :-
-    random(1, 8, Cores),
-    %Replace with real values
-    /*
-    random(1, 9, PartialFrequencyI),
-    PartialFrequencyF is (PartialFrequencyI / 10),
-    Frequency is (1.0 + PartialFrequencyF), */
-    random(1, 2, Frequency),
-    random(1, 16, RAM),
-    random(120, 1000, Storage),
+generate_servers(0, [], [], [], []).
+generate_servers(NoServers, [SC | Rsc], [SF | Rsf], [SR | Rsr], [SS | Rss]) :-
+    random(4, 8, SC),
+    random(2, 3, SF),
+    random(8, 16, SR),
+    random(122, 1000, SS),
     NoServersAux is (NoServers - 1),
-    Server = [Cores, Frequency, RAM, Storage],
-    generate_servers(NoServersAux, RestOfServerList).
+    generate_servers(NoServersAux, Rsc, Rsf, Rsr, Rss).
 
 manual_input(ServerList, NoServers, TaskList, TaskNo) :-
     write('Server Amount: '),
