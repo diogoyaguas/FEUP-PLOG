@@ -1,12 +1,12 @@
 :- use_module(library(clpfd)).
 :- use_module(library(lists)).
+:- use_module(library(samsort)).
 :- use_module(library(random)).
 
 :- include('tools.pl').
 :- include('interface.pl').
 
 ceco :-
-    % TODO Splash Screen with delay
     main_menu.
 
 schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds) :-
@@ -54,7 +54,7 @@ schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineId
     maximum(End, EndTimes),
     domain([End], 0, 86400),
     append([MachineIds, StartTimes], Vars),
-    labeling([minimize(End)], Vars). %Minimizar simetrico de plano de tarefas (?)
+    labeling([minimize(End) ], Vars). 
 
 create_machines([], _, [], [], [], [], [], []).
 create_machines([Server | Rsl], MachineId, [NoCores | Rc], [Frequency | Rf], [M1 | Rm1], [M2 | Rm2], [M3 | Rm3], 
@@ -70,7 +70,7 @@ create_machines([Server | Rsl], MachineId, [NoCores | Rc], [Frequency | Rf], [M1
 create_prolog_tasks([], [], [], [], _, _, [], [], [], []).
 create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [MachineId| Rmid], CoresList, FreqList,
     [Task1 | Rt1], [Task2 | Rt2], [Task3 | Rt3], [Task4 | Rt4]) :-
-    UserTask = [_, NoCores, Frequency, RAM, Storage, ETA],
+    UserTask = [_, _, NoCores, Frequency, RAM, Storage, ETA],
     TaskCost is (NoCores * Frequency),
     element(MachineId, CoresList, CoreS),
     element(MachineId, FreqList, FreqS),
@@ -85,6 +85,9 @@ create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [Machine
     Task3 = task(StartTime, Duration, EndTime, RAM, MachineId),
     Task4 = task(StartTime, Duration, EndTime, Storage, MachineId), 
     create_prolog_tasks(Rtl, Rs, Re, Rmid, CoresList, FreqList, Rt1, Rt2, Rt3, Rt4).
+
+compare_tasks([_, Plan1 | _], [_, Plan2 | _]) :-
+    Plan1 > Plan2.
     
 generate_data(ServerList, NoServers, TaskList, TaskNo) :-
     write('Server Amount: '),
@@ -93,19 +96,21 @@ generate_data(ServerList, NoServers, TaskList, TaskNo) :-
     write('Number of Tasks: '),
     get_clean_int(TaskNo), nl,
     AvgTime is (86400 div TaskNo),
-    generate_tasks(TaskNo, AvgTime, TaskList).
+    generate_tasks(TaskNo, 1, AvgTime, TaskList).
 
-generate_tasks(0, _, []).
-generate_tasks(NoTasks, AvgTime, [Task | RestOfTaskList]) :-
+generate_tasks(TaskNo, TaskId, _, []) :-
+    TaskId is (TaskNo + 1).
+
+generate_tasks(NoTasks, TaskId, AvgTime, [Task | RestOfTaskList]) :-
     random(1, 4, Plan),
     random(1, 4, Cores),
     random(1, 2, Frequency),
     random(1, 8, RAM),
     random(1, 122, Storage),
     random(1, AvgTime, ETAHours),
-    Task = [Plan, Cores, Frequency, RAM, Storage, ETAHours],
-    NoTasksAux is (NoTasks - 1),
-    generate_tasks(NoTasksAux, AvgTime, RestOfTaskList).
+    Task = [TaskId, Plan, Cores, Frequency, RAM, Storage, ETAHours],
+    NextTaskId is (TaskId + 1),
+    generate_tasks(NoTasks, NextTaskId, AvgTime, RestOfTaskList).
 
 generate_servers(0, []).
 generate_servers(NoServers, [Server | RestOfServerList]) :-

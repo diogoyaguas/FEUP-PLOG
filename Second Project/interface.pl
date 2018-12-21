@@ -6,22 +6,12 @@ main_menu :-
     (
         (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
         (Option = 2, generate_data(ServerList, ServerNo, TaskList, TaskNo), 
-        print_data(ServerList, ServerNo, TaskList, TaskNo)) 
+        print_data(ServerList, ServerNo, TaskList)) 
     ),
-    /*
-    write('----- Servers ----- '), nl,
-    print_list(ServerList), nl,
-    write('----- User Tasks ----- '), nl,
-    print_list(TaskList), nl, */
-    schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds),
-    print_results(1, MachineIds, StartTimes, EndTimes), nl.
-    /*
-    write('----- Machine/Tasks ----- '), nl,
-    print_list(MachineIds), nl,
-    write('----- Start Times ----- '), nl,
-    print_list(StartTimes), nl,
-    write('----- End Times ----- '), nl,
-    print_list(EndTimes), nl. */
+    samsort(compare_tasks, TaskList, NewTaskList),
+    schedule(ServerList, ServerNo, NewTaskList, TaskNo, StartTimes, EndTimes, MachineIds),
+    print_results(NewTaskList, MachineIds, StartTimes, EndTimes), nl.
+
 
 display_banner :-
     write('\e[2J'),
@@ -29,27 +19,24 @@ display_banner :-
     write(' CeCo'), nl,
     write('-------'), nl.
 
-print_results(_, [], [], []).
-print_results(Counter, [MachineId | Rmid], [StartTime | Rst], [EndTime | Ret]) :-
+print_results([], [], [], []).
+print_results([[TaskId | _] | Rt], [MachineId | Rmid], [StartTime | Rst], [EndTime | Ret]) :-
     StartTimeMins is (StartTime // 60),
     EndTimeMins is (EndTime // 60),
-    write('Task #'), write(Counter), write(' was associated with server #'), write(MachineId), write(', starting at '),
+    write('Task #'), write(TaskId), write(' was associated with server #'), write(MachineId), write(', starting at '),
     write(StartTimeMins), write(' minutes and ending at '), write(EndTimeMins),  write(' minutes.'),  nl,
-    NextCounter is (Counter + 1),
-    print_results(NextCounter, Rmid, Rst, Ret).
+    print_results(Rt, Rmid, Rst, Ret).
 
-
-print_data(ServerList, ServerNo, TaskList, TaskNo) :-
+print_data(ServerList, ServerNo, TaskList) :-
     print_servers(ServerList, ServerNo, 1), nl,
-    print_tasks(TaskList, TaskNo, 1), nl.
+    print_tasks(TaskList), nl.
 
-print_tasks([], TaskNo, Counter) :-
-    Counter is (TaskNo + 1).
-print_tasks([Task | Rt], TaskNo, Counter) :-
-    Task = [Plan, NoCores, Frequency, RAM, Storage, ETA],
+print_tasks([]).
+print_tasks([Task | Rt]) :-
+    Task = [TaskId, Plan, NoCores, Frequency, RAM, Storage, ETA],
     ETAmins is (ETA // 60),
     write('-----------'), nl,
-    write('Task #'), write(Counter), nl,
+    write('Task #'), write(TaskId), nl,
     write('-----------'), nl,
     write('Client Plan: '), write(Plan), nl,
     write('Number of Cores: '), write(NoCores), nl,
@@ -57,8 +44,7 @@ print_tasks([Task | Rt], TaskNo, Counter) :-
     write('RAM (GB): '), write(RAM), nl,
     write('Storage (GB): '), write(Storage), nl,
     write('ETA (mins): '), write(ETAmins), nl,
-    NextCounter is (Counter + 1),
-    print_tasks(Rt, TaskNo, NextCounter).
+    print_tasks(Rt).
 
 print_servers([], ServerNo, Counter) :-
     Counter is (ServerNo + 1).
@@ -96,6 +82,7 @@ create_servers(NoServers, ServerAux, [Server | RestOfServerList]) :-
     NoServersAux is (NoServers - 1),
     create_servers(NoServersAux, ServerAux, RestOfServerList).
 
+%DEPRECATED ----- CHANGE!!!!
 get_tasks(1, [Task | RestOfTaskList], TaskNo) :-
     get_task(Task, TaskNo),
     get_tasks_option(Option),
