@@ -1,3 +1,4 @@
+% Reads an option from the console as an int and checks if it is within the bounds stipulated.
 get_option(Opt, LowerBound, UpperBound) :-
     get_clean_int(Opt),
     Opt >= LowerBound,
@@ -22,6 +23,7 @@ get_clean_int(I) :-
 get_clean_int(I) :-
     write('<<< Invalid Input >>>\n\n'), get_clean_int(I).
 
+% Reads a number from the console.
 get_clean_number(N) :-
     catch(read(N), _, true),
     get_char(_).

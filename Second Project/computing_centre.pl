@@ -3,36 +3,16 @@
 :- use_module(library(random)).
 
 :- include('tools.pl').
+:- include('interface.pl').
 
 ceco :-
     % TODO Splash Screen with delay
     main_menu.
 
-main_menu :-
-    write('1 - Manual Input'), nl,
-    write('2 - Generate Data'), nl,
-    get_option(Option, 1, 2),
-    (
-        (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
-        (Option = 2, generate_data(ServerList, ServerNo, TaskList, TaskNo)) 
-    ),
-    write('----- Servers ----- '), nl,
-    print_list(ServerList), nl,
-    write('----- User Tasks ----- '), nl,
-    print_list(TaskList), nl,
-    schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds),
-    write('----- Machine/Tasks ----- '), nl,
-    print_list(MachineIds), nl,
-    write('----- Start Times ----- '), nl,
-    print_list(StartTimes), nl,
-    write('----- End Times ----- '), nl,
-    print_list(EndTimes), nl.
-
-
 schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds) :-
     length(StartTimes, TaskNo),
     length(EndTimes, TaskNo),
-    domain(StartTimes, 0, 86400), %Check what domain is best (hours vs minutes vs ?)
+    domain(StartTimes, 0, 86400),
     domain(EndTimes, 0, 86400),
     %Machines
     length(Machines1, ServerNo),
@@ -136,53 +116,4 @@ generate_servers(NoServers, [Server | RestOfServerList]) :-
     NoServersAux is (NoServers - 1),
     Server = [Cores, Frequency, RAM, Storage],
     generate_servers(NoServersAux, RestOfServerList).
-
-manual_input(ServerList, NoServers, TaskList, TaskNo) :-
-    write('Server Amount: '),
-    get_clean_int(NoServers), nl,
-    ServerAux is (NoServers + 1),
-    create_servers(NoServers, ServerAux, ServerList),
-    get_tasks(1, TaskList, 1),
-    length(TaskList, TaskNo).
-    
-create_servers(0, _, []).
-create_servers(NoServers, ServerAux, [Server | RestOfServerList]) :-
-    ServerNumber is (ServerAux - NoServers),
-    write('-----------'), nl,
-    write('Server #'), write(ServerNumber), nl,
-    write('-----------'), nl, 
-    write('Number of Cores: '), get_clean_int(NoCores), nl,
-    write('Frequency (GHz): '), get_clean_number(Frequency), nl,
-    write('RAM (GB): '), get_clean_number(RAM), nl,
-    write('Storage (GB): '), get_clean_number(Storage), nl,
-    Server = [NoCores, Frequency, RAM, Storage], 
-    NoServersAux is (NoServers - 1),
-    create_servers(NoServersAux, ServerAux, RestOfServerList).
-
-get_tasks(1, [Task | RestOfTaskList], TaskNo) :-
-    get_task(Task, TaskNo),
-    get_tasks_option(Option),
-    NextTaskNo is (TaskNo + 1),
-    !, get_tasks(Option, RestOfTaskList, NextTaskNo).
-
-get_tasks(2, [], _).
-
-get_tasks_option(Option) :-
-    write('1 - Add a new task'), nl,
-    write('2 - Save and Go Back'), nl,
-    get_option(Option, 1, 2).
-
-get_task(Task, TaskNo) :-
-    write('-----------'), nl,
-    write('Task #'), write(TaskNo), nl,
-    write('-----------'), nl,
-    write('Client Plan (1,2,3 or 4): '),
-    get_option(Plan, 1, 4),
-    write('Number of Cores: '), get_clean_int(NoCores), nl,
-    write('Frequency (GHz): '), get_clean_number(Frequency), nl,
-    write('RAM (GB): '), get_clean_number(RAM), nl,
-    write('Storage (GB): '), get_clean_number(Storage), nl,
-    write('ETA (mins): '), get_clean_int(ETAMins), nl,
-    ETAHours is (ETAMins / 60),
-    Task = [Plan, NoCores, Frequency, RAM, Storage, ETAHours].
     
