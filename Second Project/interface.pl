@@ -1,3 +1,4 @@
+%Main menu function
 main_menu :-
     display_banner,
     write('1 - Manual Input'), nl,
@@ -12,13 +13,14 @@ main_menu :-
     schedule(ServerList, ServerNo, NewTaskList, TaskNo, StartTimes, EndTimes, MachineIds),
     print_results(NewTaskList, MachineIds, StartTimes, EndTimes), nl.
 
-
+% Displays the main menu banner
 display_banner :-
     write('\e[2J'),
     write('-------'), nl,
     write(' CeCo'), nl,
     write('-------'), nl.
 
+% Prints the final results in a user friendly way
 print_results([], [], [], []).
 print_results([[TaskId | _] | Rt], [MachineId | Rmid], [StartTime | Rst], [EndTime | Ret]) :-
     StartTimeMins is (StartTime // 60),
@@ -27,10 +29,12 @@ print_results([[TaskId | _] | Rt], [MachineId | Rmid], [StartTime | Rst], [EndTi
     write(StartTimeMins), write(' minutes and ending at '), write(EndTimeMins),  write(' minutes.'),  nl,
     print_results(Rt, Rmid, Rst, Ret).
 
+% Prints the data generated automatically
 print_data(ServerList, ServerNo, TaskList) :-
     print_servers(ServerList, ServerNo, 1), nl,
     print_tasks(TaskList), nl.
 
+% Prints the tasks generated
 print_tasks([]).
 print_tasks([Task | Rt]) :-
     Task = [TaskId, Plan, NoCores, Frequency, RAM, Storage, ETA],
@@ -46,6 +50,7 @@ print_tasks([Task | Rt]) :-
     write('ETA (mins): '), write(ETAmins), nl,
     print_tasks(Rt).
 
+% Prints the servers generated
 print_servers([], ServerNo, Counter) :-
     Counter is (ServerNo + 1).
 print_servers([Server | Rs], ServerNo, Counter) :-
@@ -60,14 +65,18 @@ print_servers([Server | Rs], ServerNo, Counter) :-
     NextCounter is (Counter + 1),
     print_servers(Rs, ServerNo, NextCounter).
 
+% Retrieves the input from the user
 manual_input(ServerList, NoServers, TaskList, TaskNo) :-
     write('Server Amount: '),
     get_clean_int(NoServers), nl,
     ServerAux is (NoServers + 1),
     create_servers(NoServers, ServerAux, ServerList),
-    get_tasks(1, TaskList, 1),
-    length(TaskList, TaskNo).
+    write('Task Amount: '),
+    get_clean_int(TaskNo), nl,
+    length(TaskList, TaskNo),
+    get_tasks(1, TaskNo, TaskList).
     
+% Creates the servers with inputes from the user
 create_servers(0, _, []).
 create_servers(NoServers, ServerAux, [Server | RestOfServerList]) :-
     ServerNumber is (ServerAux - NoServers),
@@ -82,30 +91,53 @@ create_servers(NoServers, ServerAux, [Server | RestOfServerList]) :-
     NoServersAux is (NoServers - 1),
     create_servers(NoServersAux, ServerAux, RestOfServerList).
 
-%DEPRECATED ----- CHANGE!!!!
-get_tasks(1, [Task | RestOfTaskList], TaskNo) :-
-    get_task(Task, TaskNo),
-    get_tasks_option(Option),
-    NextTaskNo is (TaskNo + 1),
-    !, get_tasks(Option, RestOfTaskList, NextTaskNo).
+% Creates the tasks with inputs from the user
+get_tasks(TaskNo, ServerList, TaskList) :-
+    get_task_list(1, TaskNo, TaskList), 
+    check_tasks_compatibility(ServerList, TaskList, 0).
 
-get_tasks(2, [], _).
+get_tasks(TaskNo, ServerList, TaskList) :-
+    !, get_tasks(TaskNo, ServerList, TaskList).
 
-get_tasks_option(Option) :-
-    write('1 - Add a new task'), nl,
-    write('2 - Save and Go Back'), nl,
-    get_option(Option, 1, 2).
+% Checks if the tasks are accepted by at least one server and that their total time doesn't exceed 24h
+check_tasks_compatibility(_, [], TotalTime) :-
+    TotalTime =< 86400;
+    (write('Total task time must not exceed 24 hours (1440 mins)'), nl, fail).
 
-get_task(Task, TaskNo) :-
+check_tasks_compatibility(ServerList, [Task | Rt], TotalTime) :-
+    (
+        check_server_compatibility(ServerList, Task),
+        Task = [_, _, _, _, _, _, TaskTime],
+        AccumulatedTime is (TotalTime + TaskTime),
+        check_tasks_compatibility(ServerList, Rt, AccumulatedTime) 
+    );
+    (write('There is at least one task that cannot be serviced by any server!'), nl, fail).
+
+% Checks if there is at least one server able to process a given task
+check_server_compatibility([], _) :-
+    fail.
+check_server_compatibility([Server | Rs], Task) :-
+    Server = [NoCoresS, FrequencyS, RAMS, StorageS],
+    Task = [_, _, NoCoresT, FrequencyT, RAMT, StorageT, _],
+    ((NoCoresS >= NoCoresT, FrequencyS >= FrequencyT, RAMS >= RAMT, StorageS >= StorageT);
+    check_server_compatibility(Rs, Task)).
+
+% Creates a task list with inputs from the user
+get_task_list(Counter, TaskNo, []) :-
+    Counter is (TaskNo + 1).
+
+get_task_list(Counter, TaskNo, [Task | Rt]) :-
     write('-----------'), nl,
-    write('Task #'), write(TaskNo), nl,
+    write('Task #'), write(Counter), nl,
     write('-----------'), nl,
     write('Client Plan (1,2,3 or 4): '),
     get_option(Plan, 1, 4),
     write('Number of Cores: '), get_clean_int(NoCores), nl,
-    write('Frequency (GHz): '), get_clean_number(Frequency), nl,
+    write('Frequency (GHz): '), get_clean_int(Frequency), nl,
     write('RAM (GB): '), get_clean_number(RAM), nl,
     write('Storage (GB): '), get_clean_number(Storage), nl,
     write('ETA (mins): '), get_clean_int(ETAMins), nl,
-    ETAHours is (ETAMins / 60),
-    Task = [Plan, NoCores, Frequency, RAM, Storage, ETAHours].
+    ETASeconds is (ETAMins * 60),
+    Task = [Counter, Plan, NoCores, Frequency, RAM, Storage, ETASeconds],
+    NextCounter is (Counter + 1),
+    get_task_list(NextCounter, TaskNo, Rt).
