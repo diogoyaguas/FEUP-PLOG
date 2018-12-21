@@ -8,7 +8,7 @@ main_menu :-
         (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
         (Option = 2, generate_data(ServerList, ServerNo, TaskList, TaskNo), 
         print_data(ServerList, ServerNo, TaskList)) 
-    ),
+    ), !,
     samsort(compare_tasks, TaskList, NewTaskList),
     schedule(ServerList, ServerNo, NewTaskList, TaskNo, StartTimes, EndTimes, MachineIds),
     print_results(NewTaskList, MachineIds, StartTimes, EndTimes), nl.
@@ -74,7 +74,7 @@ manual_input(ServerList, NoServers, TaskList, TaskNo) :-
     write('Task Amount: '),
     get_clean_int(TaskNo), nl,
     length(TaskList, TaskNo),
-    get_tasks(1, TaskNo, TaskList).
+    get_tasks(1, ServerList, TaskList).
     
 % Creates the servers with inputes from the user
 create_servers(0, _, []).
@@ -84,9 +84,9 @@ create_servers(NoServers, ServerAux, [Server | RestOfServerList]) :-
     write('Server #'), write(ServerNumber), nl,
     write('-----------'), nl, 
     write('Number of Cores: '), get_clean_int(NoCores), nl,
-    write('Frequency (GHz): '), get_clean_number(Frequency), nl,
-    write('RAM (GB): '), get_clean_number(RAM), nl,
-    write('Storage (GB): '), get_clean_number(Storage), nl,
+    write('Frequency (GHz): '), get_clean_int(Frequency), nl,
+    write('RAM (GB): '), get_clean_int(RAM), nl,
+    write('Storage (GB): '), get_clean_int(Storage), nl,
     Server = [NoCores, Frequency, RAM, Storage], 
     NoServersAux is (NoServers - 1),
     create_servers(NoServersAux, ServerAux, RestOfServerList).
@@ -97,11 +97,12 @@ get_tasks(TaskNo, ServerList, TaskList) :-
     check_tasks_compatibility(ServerList, TaskList, 0).
 
 get_tasks(TaskNo, ServerList, TaskList) :-
-    !, get_tasks(TaskNo, ServerList, TaskList).
+    write('2nd Pass'), nl,
+    get_tasks(TaskNo, ServerList, TaskList).
 
 % Checks if the tasks are accepted by at least one server and that their total time doesn't exceed 24h
 check_tasks_compatibility(_, [], TotalTime) :-
-    TotalTime =< 86400;
+    (TotalTime =< 86400);
     (write('Total task time must not exceed 24 hours (1440 mins)'), nl, fail).
 
 check_tasks_compatibility(ServerList, [Task | Rt], TotalTime) :-
@@ -134,8 +135,8 @@ get_task_list(Counter, TaskNo, [Task | Rt]) :-
     get_option(Plan, 1, 4),
     write('Number of Cores: '), get_clean_int(NoCores), nl,
     write('Frequency (GHz): '), get_clean_int(Frequency), nl,
-    write('RAM (GB): '), get_clean_number(RAM), nl,
-    write('Storage (GB): '), get_clean_number(Storage), nl,
+    write('RAM (GB): '), get_clean_int(RAM), nl,
+    write('Storage (GB): '), get_clean_int(Storage), nl,
     write('ETA (mins): '), get_clean_int(ETAMins), nl,
     ETASeconds is (ETAMins * 60),
     Task = [Counter, Plan, NoCores, Frequency, RAM, Storage, ETASeconds],

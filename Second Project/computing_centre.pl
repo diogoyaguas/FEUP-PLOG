@@ -62,9 +62,10 @@ create_prolog_tasks([UserTask | Rtl], [StartTime | Rs], [EndTime | Re], [Machine
     element(MachineId, FreqList, FreqS),
     CPUSpeed #= (CoreS * FreqS),
     Diff #= (CPUSpeed - TaskCost),
+    (Diff #= 0 #/\ CleanDiff #= 1) #\/ (Diff #\= 0 #/\ CleanDiff #= Diff), 
     HalfwayPoint #= (CPUSpeed / 2),
-    (Diff #>= HalfwayPoint #/\ Duration #= (ETA / (Diff / TaskCost))) 
-    #\/ (Diff #< HalfwayPoint #/\ Duration #= (ETA * (TaskCost / Diff))),
+    (CleanDiff #>= HalfwayPoint #/\ Duration #= (ETA / (CleanDiff / TaskCost))) 
+    #\/ (CleanDiff #< HalfwayPoint #/\ Duration #= (ETA * (TaskCost / CleanDiff))),
     Task1 = task(StartTime, Duration, EndTime, NoCores, MachineId),
     Task2 = task(StartTime, Duration, EndTime, Frequency, MachineId),
     Task3 = task(StartTime, Duration, EndTime, RAM, MachineId),
