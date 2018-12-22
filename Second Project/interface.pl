@@ -131,7 +131,7 @@ get_task_list(Counter, TaskNo, [Task | Rt]) :-
     write('-----------'), nl,
     write('Task #'), write(Counter), nl,
     write('-----------'), nl,
-    write('Client Plan (1,2,3 or 4): '), get_option(Plan, 1, 4),
+    write('Client Plan (1,2,3 or 4): '), get_option(Plan, 1, 4), nl,
     write('Number of Cores: '), get_clean_int(NoCores), nl,
     write('Frequency (GHz): '), get_clean_int(Frequency), nl,
     write('RAM (GB): '), get_clean_int(RAM), nl,
