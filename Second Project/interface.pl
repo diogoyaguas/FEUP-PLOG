@@ -74,7 +74,7 @@ manual_input(ServerList, NoServers, TaskList, TaskNo) :-
     write('Task Amount: '),
     get_clean_int(TaskNo), nl,
     length(TaskList, TaskNo),
-    get_tasks(1, ServerList, TaskList).
+    get_tasks(TaskNo, ServerList, TaskList).
     
 % Creates the servers with inputes from the user
 create_servers(0, _, []).
@@ -93,7 +93,7 @@ create_servers(NoServers, ServerAux, [Server | RestOfServerList]) :-
 
 % Creates the tasks with inputs from the user
 get_tasks(TaskNo, ServerList, TaskList) :-
-    get_task_list(1, TaskNo, TaskList), 
+    get_task_list(1, TaskNo, TaskList),
     check_tasks_compatibility(ServerList, TaskList, 0).
 
 get_tasks(TaskNo, ServerList, TaskList) :-
@@ -131,8 +131,7 @@ get_task_list(Counter, TaskNo, [Task | Rt]) :-
     write('-----------'), nl,
     write('Task #'), write(Counter), nl,
     write('-----------'), nl,
-    write('Client Plan (1,2,3 or 4): '),
-    get_option(Plan, 1, 4),
+    write('Client Plan (1,2,3 or 4): '), get_option(Plan, 1, 4),
     write('Number of Cores: '), get_clean_int(NoCores), nl,
     write('Frequency (GHz): '), get_clean_int(Frequency), nl,
     write('RAM (GB): '), get_clean_int(RAM), nl,
