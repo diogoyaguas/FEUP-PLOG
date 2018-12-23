@@ -8,7 +8,18 @@
 
 % Starter function
 ceco :-
-    main_menu.
+    display_banner,
+    write('1 - Manual Input'), nl,
+    write('2 - Generate Data'), nl,
+    get_option(Option, 1, 2),
+    (
+        (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
+        (Option = 2, generate_data(ServerList, ServerNo, TaskList, TaskNo), 
+        print_data(ServerList, ServerNo, TaskList)) 
+    ), !,
+    samsort(compare_tasks, TaskList, NewTaskList),
+    schedule(ServerList, ServerNo, NewTaskList, TaskNo, StartTimes, EndTimes, MachineIds),
+    print_results(NewTaskList, MachineIds, StartTimes, EndTimes), nl.
 
 % Scheduling function, takes into account all the machines and tasks and their respective parameters
 schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineIds) :-
@@ -38,7 +49,7 @@ schedule(ServerList, ServerNo, TaskList, TaskNo, StartTimes, EndTimes, MachineId
     maximum(End, EndTimes),
     domain([End], 0, 86400),
     append([MachineIds, StartTimes], Vars),
-    labeling([minimize(End) ], Vars). 
+    labeling([minimize(End), bisect, max], Vars).
 
 % Creates the prolog machines, 4 for each server
 create_machines([], _, [], [], [], [], [], []).

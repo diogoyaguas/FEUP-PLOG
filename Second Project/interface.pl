@@ -1,18 +1,3 @@
-%Main menu function
-main_menu :-
-    display_banner,
-    write('1 - Manual Input'), nl,
-    write('2 - Generate Data'), nl,
-    get_option(Option, 1, 2),
-    (
-        (Option = 1, manual_input(ServerList, ServerNo, TaskList, TaskNo));
-        (Option = 2, generate_data(ServerList, ServerNo, TaskList, TaskNo), 
-        print_data(ServerList, ServerNo, TaskList)) 
-    ), !,
-    samsort(compare_tasks, TaskList, NewTaskList),
-    schedule(ServerList, ServerNo, NewTaskList, TaskNo, StartTimes, EndTimes, MachineIds),
-    print_results(NewTaskList, MachineIds, StartTimes, EndTimes), nl.
-
 % Displays the main menu banner
 display_banner :-
     write('\e[2J'),
