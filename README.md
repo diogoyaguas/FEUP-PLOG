@@ -31,4 +31,17 @@ If it's the computer's turn, depending on the difficulty chosen, he will choose 
 To use this application, you must load the Zurero.pl file in a Prolog interpreting machine. After it has loaded all the other files, you can initiate the game with the 'play' command. **Note: Don't forget the '.' after the command.**
 
 # Computing Center
+This application is intended to simulate the scheduling of different tasks on a certain number of servers in a single day, trying to minimize the overall time spent in the execution of these tasks. Each server has a specified number of cores and processor frequency, memory and disk space. Each task also has the the necessary values for all these parameters, as well as the:
+* ETA of the task (in minutes) - This is an estimate of the time required to complete the task. Note that this can be higher or lower in reality depending on the capabilites of the processor.
+* Associated client plan - This is composed of an integer between 1 and 4, with higher numbered plans having greater priority.
 
+The servers represented here support multi-threading which means that more than one task can be running at the same time in a server, given that it has the necessary requirements for both tasks to be running simultaneously.
+
+## Usage
+To initiate the application, it is necessary to first load the computing_centre.pl file in a prolog interpreting machine and then run the command 'ceco'. The user will now have the option to insert the data manually or auto generate values for the servers/tasks. For each option, the user will have to indicate the number of servers and tasks and, in the case of manual input, indicate the specs for each server and task. If these values were auto generated, they will be printed onto the screen.
+
+![image](https://user-images.githubusercontent.com/32617691/60518912-60105f00-9cda-11e9-9a38-d447a81473b6.png)
+
+After all values are set, the application will calculate and display the results like so.
+
+![image](https://user-images.githubusercontent.com/32617691/60518942-6d2d4e00-9cda-11e9-8281-877ee8462591.png)
